@@ -1,0 +1,10 @@
+# Optional NVIDIA GPU support; omit this file for CPU-only execution.
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
