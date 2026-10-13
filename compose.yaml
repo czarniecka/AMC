@@ -1,0 +1,55 @@
+services:
+  ollama:
+    image: ollama/ollama:0.40.2
+    volumes:
+      - ollama-models:/root/.ollama
+    environment:
+      OLLAMA_NO_CLOUD: "1"
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  model-init:
+    image: ollama/ollama:0.40.2
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["ollama pull $${OLLAMA_MODEL}"]
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:8b}
+    depends_on:
+      ollama:
+        condition: service_healthy
+  web:
+    build: .
+    entrypoint: ["/app/.venv/bin/python", "scripts/run_web.py"]
+    command: ["--server.address", "0.0.0.0", "--server.headless", "true"]
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:8b}
+    ports:
+      - "127.0.0.1:${WEB_PORT:-18501}:8501"
+    depends_on:
+      model-init:
+        condition: service_completed_successfully
+  classifier:
+    build: .
+    profiles: ["analysis"]
+    entrypoint: ["/app/.venv/bin/python"]
+    command: ["scripts/classify_comments.py"]
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:8b}
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      model-init:
+        condition: service_completed_successfully
+  collector:
+    build: .
+    profiles: ["collection"]
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+volumes:
+  ollama-models:
