@@ -1,5 +1,25 @@
 [project]
-name = "amc-projekt"
+name = "amc-project"
 version = "0.1.0"
+description = "YouTube collection and local comment classification tools for AMC"
+readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "python-dotenv>=1.0,<2",
+    "requests>=2.32.4,<3",
+    "streamlit>=1.40,<2",
+    "youtube-transcript-api>=1.2,<2",
+]
+
+[dependency-groups]
+dev = ["ruff==0.11.13"]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
