@@ -40,6 +40,11 @@ Use `make check` for offline tests or see the equivalent commands below.
 - [Operations](docs/operations.md): Makefile, Docker, GPU, CSV fields and resuming.
 - [YouTube collector](docs/youtube/youtube-collector.md): collection behavior and privacy.
 - [Sampling methodology](docs/youtube/comment-sampling.md): research limitations.
+- [KPRM job ads](docs/jobs/kprm-collection.md): pilot sample of public job advertisements.
+- [Skill scope](docs/jobs/skill-scope.md): codebook and pre/post-2023 comparison.
+- [ESCO skills](docs/jobs/esco.md): downloading the Polish ESCO skills taxonomy.
+- [Labeling guide](docs/jobs/labeling-guide.md): hand labels for validating the codebook and ESCO mapping.
+- [ESCO mapping](docs/jobs/esco-mapping.md): embedding match of fragments to ESCO and threshold calibration.
 - [Candidate review](docs/youtube/youtube-candidates-review.md): rationale for the pilot list.
 
 ## Moving to another repository
@@ -65,6 +70,8 @@ uv run --locked python -m unittest discover -s tests
 
 - `amc/youtube/`: collection, CSV storage and reviewed video selection.
 - `amc/classification/`: Ollama client and batch classification.
+- `amc/jobs/`: KPRM job-advertisement sampling, parsing and CSV storage.
+- `amc/esco/`: ESCO skills download for competence mapping.
 - `amc/web/`: browser interface.
 - `scripts/youtube/`: discovery and collection entry points.
 - `config/youtube/`: reviewed video configuration.
@@ -73,4 +80,4 @@ uv run --locked python -m unittest discover -s tests
 
 `python -m amc` remains a compatibility entry point; `python -m amc.youtube` is
 also supported. The collection default directory is now `data/youtube`.
-No folders for future job-offer data have been created.
+Job-advertisement data goes to `data/jobs/` (not committed).
