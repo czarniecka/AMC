@@ -23,10 +23,12 @@ TRANSCRIPT_COLUMNS = ("video_id", "transcript")
 TEXT_COLUMNS = {"title", "channel_title", "text_clean", "transcript"}
 
 
-def _spreadsheet_safe(value: object, column: str) -> object:
+def _spreadsheet_safe(
+    value: object, column: str, text_columns: Iterable[str] = TEXT_COLUMNS
+) -> object:
     """Neutralize formula-like free text when a CSV is opened in a spreadsheet."""
     if (
-        column in TEXT_COLUMNS
+        column in text_columns
         and isinstance(value, str)
         and value.lstrip().startswith(("=", "+", "-", "@"))
     ):
@@ -38,6 +40,7 @@ def write_csv(
     path: Path,
     columns: tuple[str, ...],
     records: Iterable[Any],
+    text_columns: Iterable[str] = TEXT_COLUMNS,
 ) -> None:
     """Write only the requested fields, with headers even when the collection is empty."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -58,7 +61,10 @@ def write_csv(
             for record in records:
                 row = asdict(record)
                 writer.writerow(
-                    {column: _spreadsheet_safe(row[column], column) for column in columns}
+                    {
+                        column: _spreadsheet_safe(row[column], column, text_columns)
+                        for column in columns
+                    }
                 )
             stream.flush()
             os.fsync(stream.fileno())
