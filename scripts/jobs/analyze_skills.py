@@ -92,7 +92,9 @@ def main(argv: list[str] | None = None) -> int:
     matches_path = options.esco_matches or out / "esco_matches.csv"
     esco = {}
     if matches_path.exists():
-        esco_skills, esco_groups = esco_skills_per_ad(matches_path, codebook, options.esco_threshold)
+        esco_skills, esco_groups = esco_skills_per_ad(
+            matches_path, codebook, options.esco_threshold
+        )
         esco = {
             "distinct ESCO skills": lambda a: len(esco_skills[a.ad_id]),
             "distinct ESCO skill groups": lambda a: len(esco_groups[a.ad_id]),
