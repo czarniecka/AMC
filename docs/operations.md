@@ -188,3 +188,18 @@ https://docs.docker.com/compose/how-tos/gpu-support/ .
 
 
 Select another approved list with --selection path/to/selection.json. Rebuild the container after changing bundled configuration.
+
+## Versioned research data
+
+`data/` is ignored by Git except for small research artifacts that other people need to
+reproduce the validation (see `.gitignore`):
+
+- `data/jobs/labeling/`: `label_sheet.csv`, `label_key.csv` (codebook gold standard),
+  `esco_review.csv`, `esco_review_key.csv` (ESCO gold standard).
+- `data/jobs/analysis/`: `codebook_validation.csv`, `esco_threshold_table.csv`,
+  `scope_summary.csv`, `skill_summary.csv`, `skill_flags.csv`.
+
+Raw ad collections (`kprm_*.csv`, `raw/`), `esco_matches.csv`, ESCO downloads and
+`*.excel_backup.csv` files stay local and can be regenerated. Never run
+`make_label_sheet.py` over the labeled sheet; it refuses to overwrite it. The YouTube
+pilot CSVs in `data/youtube/` were added to Git explicitly.
