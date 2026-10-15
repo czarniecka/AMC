@@ -29,7 +29,7 @@ COLUMNS = (
     "prompt_hash",
     "classified_at",
 )
-SEED = 20261013 
+SEED = 20261013
 
 
 def text_hash(text: str) -> str:
