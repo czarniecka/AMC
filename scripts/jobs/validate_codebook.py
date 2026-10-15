@@ -82,9 +82,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.writer(stream)
-        writer.writerow(
-            ["applied_to", "category", "gold", "tp", "fp", "fn", "precision", "recall"]
-        )
+        writer.writerow(["applied_to", "category", "gold", "tp", "fp", "fn", "precision", "recall"])
         writer.writerows(output)
 
 

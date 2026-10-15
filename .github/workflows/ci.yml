@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint and lockfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv lock --check
+      - run: uv run --locked ruff check .
+      - run: uv run --locked ruff format --check .
+
+  youtube:
+    name: Tests (YouTube flow)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Run YouTube, classification and web tests
+        env:
+          PYTHONPATH: tests
+        run: >
+          uv run --locked python -m unittest -v
+          test_batch_classifier test_classifier test_collection
+          test_environment test_selection test_storage test_web
+
+  jobs:
+    name: Tests (KPRM and ESCO flow)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Run KPRM collection, codebook analysis and ESCO tests
+        env:
+          PYTHONPATH: tests
+        run: >
+          uv run --locked python -m unittest -v
+          test_jobs test_fragments test_job_analysis test_esco test_esco_mapping
