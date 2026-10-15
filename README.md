@@ -40,6 +40,10 @@ Use `make check` for offline tests or see the equivalent commands below.
 - [Operations](docs/operations.md): Makefile, Docker, GPU, CSV fields and resuming.
 - [YouTube collector](docs/youtube/youtube-collector.md): collection behavior and privacy.
 - [Sampling methodology](docs/youtube/comment-sampling.md): research limitations.
+- [YouTube labeling and validation](docs/youtube/comment-labeling-guide.md): codebook,
+  blind pilot/evaluation sheets, human gold standard and model quality reports.
+- [YouTube pilot results](docs/youtube/validation-results.md): completed 50-comment
+  single-annotator validation, reproducible reports and methodological limitations.
 - [KPRM job ads](docs/jobs/kprm-collection.md): pilot sample of public job advertisements.
 - [Skill scope](docs/jobs/skill-scope.md): codebook and pre/post-2023 comparison.
 - [ESCO skills](docs/jobs/esco.md): downloading the Polish ESCO skills taxonomy.

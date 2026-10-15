@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "unit": "One top-level YouTube comment, assessed from its own text only",
+  "target": "The author's expressed assessment of AI's impact on work, employment or occupational skills, not general sentiment about AI or the video",
+  "relevance": {
+    "relevant": "Explicitly discusses AI and work, hiring, job security, workplace tasks or occupational learning and skills. A clear reference such as 'these tools' is sufficient only when its meaning is established within the comment.",
+    "unrelated": "Does not address the target: praise for the video, spam, resource requests, or AI topics without a work/skills connection.",
+    "unclear": "Insufficient or ambiguous text to determine whether it addresses the target. Do not infer missing context from the video title or other comments."
+  },
+  "impact": {
+    "positive": "Expresses benefits or opportunities attributed to AI for work or occupational skills, with no expressed harm.",
+    "negative": "Expresses harms, threats, pressure or adverse effects attributed to AI for work or occupational skills, with no expressed benefit.",
+    "mixed": "Expresses both a benefit and a harm. Do not select the stronger side or assume one cancels the other.",
+    "neutral": "Relevant descriptive statement or question with no expressed assessment of benefit or harm.",
+    "unclear": "The assessment cannot be determined, including unresolved irony or missing context. Required for unrelated or unclear relevance."
+  },
+  "rules": [
+    "Assess what the author expresses; do not judge whether their claim is true.",
+    "Label predictions and personal experiences by the same expressed-impact rules; do not treat predictions as observed effects.",
+    "A question about possible job loss is negative only if it expresses worry or a threat, not merely because it contains the words job loss.",
+    "Mentioning learning or adopting AI does not by itself imply positive or negative impact.",
+    "For unclear or unrelated relevance, impact must be unclear.",
+    "For relevant comments distinguish neutral (no evaluation expressed) from unclear (evaluation cannot be interpreted).",
+    "Do not translate sarcasm into a definite opinion unless the intended assessment is clear from the comment itself.",
+    "Read the original language. Escalate an unfamiliar language for review rather than guessing."
+  ],
+  "examples": [
+    {"text": "Świetny film, dzięki!", "relevance": "unrelated", "impact": "unclear"},
+    {"text": "AI skraca mi czas przygotowania raportów w pracy.", "relevance": "relevant", "impact": "positive"},
+    {"text": "Boję się zwolnienia, bo AI przejmuje moje zadania.", "relevance": "relevant", "impact": "negative"},
+    {"text": "AI pomaga mi pracować, ale szef wymaga teraz dwa razy więcej.", "relevance": "relevant", "impact": "mixed"},
+    {"text": "W firmie wdrożyliśmy szkolenie z AI.", "relevance": "relevant", "impact": "neutral"},
+    {"text": "AI saves time at work but makes me worry about my role.", "relevance": "relevant", "impact": "mixed"},
+    {"text": "Does your employer offer AI training?", "relevance": "relevant", "impact": "neutral"},
+    {"text": "Exactly. This is what happened to me too.", "relevance": "unclear", "impact": "unclear"}
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "relevance": {
+    "n": 50,
+    "accuracy": 0.8,
+    "macro_f1": 0.537375415282392,
+    "macro_policy": "Mean over classes present in gold or predictions; absent classes have null metrics",
+    "per_class": {
+      "relevant": {
+        "support": 26,
+        "precision": 0.7666666666666667,
+        "recall": 0.8846153846153846,
+        "f1": 0.8214285714285714
+      },
+      "unrelated": {
+        "support": 23,
+        "precision": 0.85,
+        "recall": 0.7391304347826086,
+        "f1": 0.7906976744186046
+      },
+      "unclear": {
+        "support": 1,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    },
+    "confusion_matrix": {
+      "relevant": {
+        "relevant": 23,
+        "unrelated": 3,
+        "unclear": 0
+      },
+      "unrelated": {
+        "relevant": 6,
+        "unrelated": 17,
+        "unclear": 0
+      },
+      "unclear": {
+        "relevant": 1,
+        "unrelated": 0,
+        "unclear": 0
+      }
+    }
+  },
+  "impact": {
+    "n": 50,
+    "accuracy": 0.44,
+    "macro_f1": 0.28595959595959597,
+    "macro_policy": "Mean over classes present in gold or predictions; absent classes have null metrics",
+    "per_class": {
+      "positive": {
+        "support": 12,
+        "precision": 0.5,
+        "recall": 0.16666666666666666,
+        "f1": 0.25
+      },
+      "negative": {
+        "support": 9,
+        "precision": 0.6666666666666666,
+        "recall": 0.2222222222222222,
+        "f1": 0.3333333333333333
+      },
+      "mixed": {
+        "support": 2,
+        "precision": 0.05,
+        "recall": 0.5,
+        "f1": 0.09090909090909091
+      },
+      "neutral": {
+        "support": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "unclear": {
+        "support": 24,
+        "precision": 0.8095238095238095,
+        "recall": 0.7083333333333334,
+        "f1": 0.7555555555555555
+      }
+    },
+    "confusion_matrix": {
+      "positive": {
+        "positive": 2,
+        "negative": 0,
+        "mixed": 9,
+        "neutral": 0,
+        "unclear": 1
+      },
+      "negative": {
+        "positive": 0,
+        "negative": 2,
+        "mixed": 5,
+        "neutral": 0,
+        "unclear": 2
+      },
+      "mixed": {
+        "positive": 0,
+        "negative": 0,
+        "mixed": 1,
+        "neutral": 0,
+        "unclear": 1
+      },
+      "neutral": {
+        "positive": 1,
+        "negative": 0,
+        "mixed": 2,
+        "neutral": 0,
+        "unclear": 0
+      },
+      "unclear": {
+        "positive": 1,
+        "negative": 1,
+        "mixed": 3,
+        "neutral": 2,
+        "unclear": 17
+      }
+    }
+  },
+  "impact_on_gold_relevant": {
+    "n": 26,
+    "accuracy": 0.19230769230769232,
+    "macro_f1": 0.14711323763955345,
+    "macro_policy": "Mean over classes present in gold or predictions; absent classes have null metrics",
+    "per_class": {
+      "positive": {
+        "support": 12,
+        "precision": 0.6666666666666666,
+        "recall": 0.16666666666666666,
+        "f1": 0.26666666666666666
+      },
+      "negative": {
+        "support": 9,
+        "precision": 1.0,
+        "recall": 0.2222222222222222,
+        "f1": 0.36363636363636365
+      },
+      "mixed": {
+        "support": 2,
+        "precision": 0.058823529411764705,
+        "recall": 0.5,
+        "f1": 0.10526315789473684
+      },
+      "neutral": {
+        "support": 3,
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "unclear": {
+        "support": 0,
+        "precision": 0.0,
+        "recall": null,
+        "f1": 0.0
+      }
+    },
+    "confusion_matrix": {
+      "positive": {
+        "positive": 2,
+        "negative": 0,
+        "mixed": 9,
+        "neutral": 0,
+        "unclear": 1
+      },
+      "negative": {
+        "positive": 0,
+        "negative": 2,
+        "mixed": 5,
+        "neutral": 0,
+        "unclear": 2
+      },
+      "mixed": {
+        "positive": 0,
+        "negative": 0,
+        "mixed": 1,
+        "neutral": 0,
+        "unclear": 1
+      },
+      "neutral": {
+        "positive": 1,
+        "negative": 0,
+        "mixed": 2,
+        "neutral": 0,
+        "unclear": 0
+      },
+      "unclear": {
+        "positive": 0,
+        "negative": 0,
+        "mixed": 0,
+        "neutral": 0,
+        "unclear": 0
+      }
+    }
+  },
+  "split": "pilot",
+  "model": "qwen3:8b",
+  "prompt_hash": "12029728a1d797f8dbdf08d69208a967ea10d6a11a751a5bdba3626e0a7f7e84",
+  "gold_sha256": "4a6657b1ad1af2dc68ee2bcf78bdf450836477737b1d41be0c2380e26c9415ef",
+  "predictions_sha256": "dbc77a42497eb352c8f00379de50b2dd09c42f76f0e362ffc9ca8fdb78d6ee36",
+  "key_sha256": "3644e167ee00026e68bcd9296733845de6377ad57fa656e72bfcb0cfa112e11f",
+  "sampling_manifest": {
+    "seed": 20261015,
+    "pilot_size": 50,
+    "evaluation_size": 200,
+    "created_at": "2026-10-15T18:05:56.577554+00:00",
+    "source_sha256": "888bc490e067d1f4e0e040bbd591470dbc110410e78b08ef48394143b58a2053",
+    "codebook_version": "1.0.0",
+    "codebook_sha256": "c850ff474807e33fae70abff8c3a144c6fdb095a063c06862610997ff8e90d0c",
+    "split_policy": "video-disjoint, exact-text-deduplicated; no model labels used",
+    "limitations": "Not language-stratified; verify language coverage manually. Not population-representative.",
+    "key_sha256": "3644e167ee00026e68bcd9296733845de6377ad57fa656e72bfcb0cfa112e11f"
+  },
+  "coverage": {
+    "expected": 50,
+    "matched": 50
+  },
+  "annotation_methods": [
+    "single_annotator"
+  ],
+  "annotation_limitations": "Single-annotator reference; inter-annotator agreement was not measured."
+}
