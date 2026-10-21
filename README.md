@@ -1,6 +1,7 @@
 # AMC Project
 
-YouTube comment collection and local classification with Ollama/Qwen.
+YouTube comment collection and local classification with Ollama/Qwen, plus job
+advertisements (KPRM civil service, Hacker News "Who is hiring?") and Wykop posts.
 Results accumulate in CSV files. Classification returns `relevance` and `impact`.
 
 ## Start with Docker
@@ -34,6 +35,24 @@ with `--selection path/to/selection.json`. Completed samples are skipped;
 changing the comment limit alone does not revisit them (`--refresh-comments` does).
 Native classification needs a running Ollama with the model installed.
 Use `make check` for offline tests or see the equivalent commands below.
+
+## Other sources
+
+```text
+uv run --locked python scripts/jobs/collect_full.py --start 131000 --end 170000
+uv run --locked python scripts/hn/collect_hiring.py
+uv run --locked python scripts/wykop/collect_entries.py
+uv run --locked python scripts/wykop/collect_comments.py
+uv run --locked python scripts/wykop/classify_entries.py
+```
+
+Collectors append to their CSV and resume when rerun. `collect_full.py` writes KPRM ads in
+the RepOD format (doi:10.18150/Q23MGT) to `data/jobs/`, next to the 2018-2023 release.
+Hacker News uses only the official APIs; Wykop uses API v3 and stores `author_hash`
+(salted SHA-256) instead of usernames. Wykop tags, start date and the comment rule are in
+`config/wykop/collection.json`. `classify_entries.py` applies the YouTube instruction
+and labels with a CLARIN-PL model. Credentials: `WYKOP_KEY`, `WYKOP_SECRET`, `WYKOP_SALT`,
+`CLARIN_TOKEN`, `CLARIN_MODEL` in `.env`. The notebook in `notebooks/` reads the RepOD data.
 
 ## Documentation
 
@@ -71,7 +90,11 @@ uv run --locked python -m unittest discover -s tests
 
 - `amc/youtube/`: collection, CSV storage and reviewed video selection.
 - `amc/classification/`: Ollama client and batch classification.
-- `amc/jobs/`: KPRM job-advertisement sampling, parsing and CSV storage.
+- `amc/jobs/`: KPRM job-advertisement sampling, parsing and CSV storage; full collection
+  in the RepOD format (`repod.py`, `full.py`).
+- `amc/hn/`, `amc/wykop/`: Hacker News and Wykop collection; Wykop classification uses
+  `amc/classification/clarin.py`.
+- `notebooks/`: exploratory analysis.
 - `amc/esco/`: ESCO skills download for competence mapping.
 - `amc/web/`: browser interface.
 - `scripts/youtube/`: discovery and collection entry points.
@@ -81,4 +104,5 @@ uv run --locked python -m unittest discover -s tests
 
 `python -m amc` remains a compatibility entry point; `python -m amc.youtube` is
 also supported. The collection default directory is now `data/youtube`.
-Job-advertisement data goes to `data/jobs/` (not committed).
+Job-advertisement data goes to `data/jobs/`, Hacker News to `data/hn/` and Wykop to
+`data/wykop/` (not committed).
