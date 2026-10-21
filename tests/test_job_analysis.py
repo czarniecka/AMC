@@ -8,6 +8,7 @@ from amc.jobs.analysis import (
     bootstrap_ci,
     fisher_exact,
     flag_ad,
+    fragment_decision,
     holm,
     institution_group,
     period_of,
@@ -39,6 +40,31 @@ class FlagTests(unittest.TestCase):
         )
         self.assertEqual(count, 3)
         self.assertEqual(found, {"digital_basic", "analytical_thinking", "ai_automation"})
+
+    def test_categories_are_per_fragment_not_per_line(self):
+        # "Komunikatywność" must not be credited to a line only because a sibling fragment
+        # names teamwork; each fragment is judged on its own text.
+        line = "Umiejętności: praca w zespole, obsługa komputera"
+        self.assertEqual(
+            fragment_decision(CODEBOOK, line, "Umiejętności: praca w zespole"),
+            ("skill", frozenset({"teamwork"})),
+        )
+        self.assertEqual(
+            fragment_decision(CODEBOOK, line, "obsługa komputera"),
+            ("skill", frozenset({"digital_basic"})),
+        )
+        _, found = flag_ad(CODEBOOK, line, "")
+        self.assertEqual(found, {"teamwork", "digital_basic"})
+
+    def test_formal_filter_uses_the_whole_line(self):
+        self.assertEqual(
+            fragment_decision(CODEBOOK, "Wykształcenie: wyższe weterynaryjne", "wyższe")[0],
+            "formal",
+        )
+
+    def test_statistics_is_data_analysis_not_analytical_thinking(self):
+        _, found = flag_ad(CODEBOOK, "Umiejętność analizy wyników badań statystycznych", "")
+        self.assertEqual(found, {"data_analysis"})
 
     def test_period_and_group(self):
         self.assertEqual((period_of("2022-12-31"), period_of("2023-01-01")), ("pre", "post"))
