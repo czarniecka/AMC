@@ -5,8 +5,9 @@ import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
+from unittest.mock import patch
 
-from amc.classification.batch_classifier import PROMPT_HASH
+from amc.classification import job_concern
 from amc.csv_files import read_rows
 from amc.wykop import classification
 from amc.wykop.collector import collect_comments, collect_entries
@@ -120,14 +121,40 @@ class CollectionTests(unittest.TestCase):
             self.assertEqual(saved[0]["tag"], "ai")
 
 
-class FakeClarin:
+class FakeOllama:
     def classify(self, text, model):
         if "bad" in text:
             raise ValueError("invalid")
-        return {"relevance": "relevant", "impact": "negative"}
+        return {"ai": "yes", "work": "yes", "stance": "threat"}
+
+
+class JobConcernTests(unittest.TestCase):
+    @patch("amc.classification.job_concern.ask")
+    def test_labels_are_validated(self, ask):
+        ask.return_value = {"ai": "yes", "work": "yes", "stance": "mixed"}
+        self.assertEqual(job_concern.OllamaClient().classify("t", "m")["stance"], "mixed")
+        self.assertIs(ask.call_args.args[2], job_concern.INSTRUCTION)
+        for labels in (
+            {"ai": "no", "work": "yes", "stance": "threat"},
+            {"ai": "yes", "work": "yes", "stance": "fear"},
+            {"ai": "yes", "work": "yes"},
+        ):
+            ask.return_value = labels
+            with self.assertRaises(ValueError):
+                job_concern.OllamaClient().classify("t", "m")
 
 
 class ClassificationTests(unittest.TestCase):
+    def test_mirko_anonim_header_and_footer_are_removed(self):
+        text = (
+            "✨️ **Tytuł od AI** [Ⓘ](https://mirko.pro/mirko-anonim/faq#wsparcie-ai)\n"
+            "Szukam pracy od roku.\n· Ma 2 punkty\n\n─────\n"
+            "· Akcje: [Odpowiedz](https://mirko.pro/x)\n"
+            "!Pomóż [❤️ tutaj](https://buycoffee.to/mirko.pro)."
+        )
+        self.assertEqual(classification.model_text(text), "Szukam pracy od roku.")
+        self.assertEqual(classification.model_text("· AI · praca"), "· AI · praca")
+
     def test_parallel_run_resumes_and_retries_invalid(self):
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "entries.csv"
@@ -143,14 +170,15 @@ class ClassificationTests(unittest.TestCase):
                     writer.writerow(rows.entry(item, "ai"))
             log = lambda _: None  # noqa: E731
             self.assertEqual(
-                classification.run(FakeClarin(), source, output, "m", workers=2, log=log), 2
+                classification.run(FakeOllama(), source, output, "m", workers=2, log=log), 2
             )
-            self.assertEqual(classification.run(FakeClarin(), source, output, "m", log=log), 0)
-            self.assertEqual(classification.run(FakeClarin(), source, output, "other", log=log), 2)
+            self.assertEqual(classification.run(FakeOllama(), source, output, "m", log=log), 0)
+            self.assertEqual(classification.run(FakeOllama(), source, output, "other", log=log), 2)
             with output.open(encoding="utf-8-sig", newline="") as stream:
                 saved = list(csv.DictReader(stream))
             self.assertEqual(len(saved), 4)
-            self.assertEqual({row["prompt_hash"] for row in saved}, {PROMPT_HASH})
+            self.assertEqual({row["prompt_hash"] for row in saved}, {job_concern.PROMPT_HASH})
+            self.assertEqual({row["stance"] for row in saved}, {"threat"})
 
 
 if __name__ == "__main__":

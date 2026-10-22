@@ -50,9 +50,13 @@ Collectors append to their CSV and resume when rerun. `collect_full.py` writes K
 the RepOD format (doi:10.18150/Q23MGT) to `data/jobs/`, next to the 2018-2023 release.
 Hacker News uses only the official APIs; Wykop uses API v3 and stores `author_hash`
 (salted SHA-256) instead of usernames. Wykop tags, start date and the comment rule are in
-`config/wykop/collection.json`. `classify_entries.py` applies the YouTube instruction
-and labels with a CLARIN-PL model. Credentials: `WYKOP_KEY`, `WYKOP_SECRET`, `WYKOP_SALT`,
-`CLARIN_TOKEN`, `CLARIN_MODEL` in `.env`. The notebook in `notebooks/` reads the RepOD data.
+`config/wykop/collection.json`. `classify_entries.py` labels texts with local Ollama
+(`OLLAMA_MODEL`) using the H1 instruction in `amc/classification/job_concern.py`: `ai`,
+`work` and `stance` (threat, reassurance, opportunity, mixed, none). Set
+`OLLAMA_NUM_PARALLEL` for Ollama to the `--workers` value (Compose sets 2; each slot adds
+about 0.6 GB of GPU memory for qwen3:8b). In Docker:
+`docker compose -f compose.yaml -f compose.gpu.yaml run --rm classifier scripts/wykop/classify_entries.py`. Credentials: `WYKOP_KEY`,
+`WYKOP_SECRET`, `WYKOP_SALT` in `.env`. The notebook in `notebooks/` reads the RepOD data.
 
 ## Documentation
 
@@ -92,7 +96,7 @@ uv run --locked python -m unittest discover -s tests
 - `amc/jobs/`: KPRM job-advertisement sampling, parsing and CSV storage; full collection
   in the RepOD format (`repod.py`, `full.py`).
 - `amc/hn/`, `amc/wykop/`: Hacker News and Wykop collection; Wykop classification uses
-  `amc/classification/clarin.py`.
+  `amc/classification/job_concern.py`.
 - `notebooks/`: exploratory analysis.
 - `amc/esco/`: ESCO skills download for competence mapping.
 - `amc/web/`: browser interface.

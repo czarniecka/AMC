@@ -1,21 +1,21 @@
-"""Classify entries and comments like YouTube comments, with parallel CLARIN-PL requests.
+"""Classify entries and comments with the H1 labels (`job_concern`), in parallel requests.
 
-Output columns match yt_comments_classified.csv, with `type` and `entry_id` as the key.
-Rows are appended as answers arrive, because the collection is too large to rewrite the file
-after each prediction. Reruns skip rows with the same key, text hash, model and prompt hash.
-Invalid answers are not saved and are retried on the next run.
+`type` and `entry_id` are the key. Rows are appended as answers arrive, because the
+collection is too large to rewrite the file after each prediction. Reruns skip rows with the
+same key, text hash, model and prompt hash. Invalid answers are not saved and are retried on
+the next run.
 """
 
 import hashlib
 import random
+import re
 import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
-from amc.classification.batch_classifier import PROMPT_HASH
-from amc.classification.clarin import ClarinClient
+from amc.classification.job_concern import PROMPT_HASH, OllamaClient
 from amc.csv_files import append_rows, read_rows
 from amc.wykop import records
 
@@ -23,13 +23,26 @@ COLUMNS = (
     "type",
     "entry_id",
     "text_hash",
-    "relevance",
-    "impact",
+    "ai",
+    "work",
+    "stance",
     "model",
     "prompt_hash",
     "classified_at",
 )
 SEED = 20261013
+
+
+# Mirko Anonim posts carry a bot header and footer; since July 2025 the header is an
+# AI-written title linking to `#wsparcie-ai`, which the model would read as a post about AI.
+BOT_LINE = re.compile(r"mirko\.pro|mirko ?anonim|^\s*[─〰!]+\s*$|^\s*· ", re.I)
+
+
+def model_text(text: str) -> str:
+    """The author's own words: Mirko Anonim header and footer lines removed."""
+    if "mirko.pro" not in text:
+        return text
+    return "\n".join(line for line in text.splitlines() if not BOT_LINE.search(line)).strip()
 
 
 def text_hash(text: str) -> str:
@@ -45,12 +58,12 @@ def completed(output: Path, model: str) -> set[tuple[str, str, str]]:
 
 
 def run(
-    client: ClarinClient,
+    client: OllamaClient,
     source: Path,
     output: Path,
     model: str,
     *,
-    workers: int = 8,
+    workers: int = 2,
     limit: int | None = None,
     seed: int = SEED,
     log: Callable[[str], None] = print,
@@ -59,7 +72,11 @@ def run(
     if source.resolve() == output.resolve():
         raise ValueError("Classification output must be separate from the source.")
     done = completed(output, model)
-    rows = [row for row in read_rows(source, records.COLUMNS) if row["text"].strip()]
+    # `text` becomes what the model reads, so `text_hash` changes when the cleaning does.
+    rows = [
+        {**row, "text": model_text(row["text"])} for row in read_rows(source, records.COLUMNS)
+    ]
+    rows = [row for row in rows if row["text"]]
     random.Random(seed).shuffle(rows)
     todo = [
         row for row in rows if (row["type"], row["entry_id"], text_hash(row["text"])) not in done
