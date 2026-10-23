@@ -15,5 +15,10 @@
   41 unclear, 19 negative, 7 neutral, 8 positive. These counts are predictions,
   not human-validated accuracy or population estimates.
 
+Status of validation: there is no codebook file and no hand-labeled gold standard for
+YouTube comments yet, so accuracy of the model is unknown. Planned: write the codebook,
+hand-label a random sample (ideally by two coders, with kappa), then compare model labels
+with it before classifying the rest. See [sampling](youtube/comment-sampling.md).
+
 The run was capped at 100. Source comments were not modified. To continue:
 `make docker-classify GPU=1` (no limit). Already saved predictions are skipped.

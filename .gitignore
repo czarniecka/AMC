@@ -12,5 +12,21 @@ htmlcov/
 build/
 dist/
 *.egg-info/
-data/
+data/*
+!data/jobs/
+data/jobs/*
+# Versioned research artifacts: gold standard and validation/analysis results.
+!data/jobs/labeling/
+data/jobs/labeling/*
+!data/jobs/labeling/label_sheet.csv
+!data/jobs/labeling/label_key.csv
+!data/jobs/labeling/esco_review.csv
+!data/jobs/labeling/esco_review_key.csv
+!data/jobs/analysis/
+data/jobs/analysis/*
+!data/jobs/analysis/codebook_validation.csv
+!data/jobs/analysis/esco_threshold_table.csv
+!data/jobs/analysis/scope_summary.csv
+!data/jobs/analysis/skill_summary.csv
+!data/jobs/analysis/skill_flags.csv
 .DS_Store

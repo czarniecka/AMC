@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "note": "Regexes are matched case-insensitively against single requirement lines. 'formal' lines are excluded from skill scope; 'boilerplate' lines are statutory text present in nearly every ad.",
   "boilerplate": [
     "obywatelstw",
@@ -35,12 +35,12 @@
   "skills": {
     "digital_basic": "komputer|office|excel|\\bword\\b|outlook|powerpoint|internet",
     "digital_advanced": "baz\\w* danych|\\bsql\\b|python|programow|power ?bi|systemy? informatyczn|sieci komputer|cyberbezpiecz|bezpieczeństw\\w* (informacji|it|teleinformatyczn)|administrowan\\w* (system|sieci)|e-?usług|epuap|linux|\\bjava|aplikacj\\w* (webow|mobiln)|teleinformatyczn|architektur\\w* system|zagadnie\\w* sieciow|sieciow",
-    "data_analysis": "analiz\\w* danych|statystyk|raport|sprawozdawcz|wskaźnik|monitoring|ewaluac",
-    "analytical_thinking": "analityczn|analiz|wnioskowan|logiczn\\w* myśl|syntez",
+    "data_analysis": "analiz\\w* (danych|wyników)|statystyk|statystyczn|raport|sprawozdawcz|wskaźnik|monitoring|ewaluac",
+    "analytical_thinking": "analityczn|analiz(?!\\w* (danych|wyników))|wnioskowan|logiczn\\w* myśl|syntez",
     "ai_automation": "sztuczn\\w* inteligencj|\\bai\\b|chatgpt|uczeni\\w* maszynow|\\bllm\\b|generatywn|automatyz|\\brpa\\b|algorytm",
     "foreign_language": "język\\w* (angielsk|niemieck|francusk|rosyjsk|ukraińsk|hiszpańsk|włosk)|języków obcych|znajomość języka|\\bb[12]\\b",
-    "legal_knowledge": "znajomość (ustaw|przepisów|prawa|kodeks|zarządze|rozporządze|procedur|zasad)|ordynacj|kodeks|prawo zamówień|finansach publicznych|stosowan\\w* prawa|przepis|\\bustaw[aęyi]?\\b|\\bprawo\\b|\\bprawa\\b|\\bprawem\\b|rozporządzeni|akt\\w* wykonawcz|^(o|w sprawie) ",
-    "communication": "(?<!poziomie )komunikat|komunikacj|negocjac|prezentac|wystąpień|wystąpieni\\w* publiczn|asertywn|przekonywan|wypowiad",
+    "legal_knowledge": "znajomość (ustaw|przepisów|prawa|kodeks|zarządze|rozporządze|procedur|zasad (prawa|postępowania|ustaw))|ordynacj|kodeks|prawo zamówień|finansach publicznych|stosowan\\w* prawa|przepis|\\bustaw[aęyi]?\\b|\\bprawo\\b|\\bprawa\\b|\\bprawem\\b|rozporządzeni|akt\\w* wykonawcz|organ\\w* (administracji|państwa|władzy)|^(o|w sprawie) ",
+    "communication": "(?<!poziomie )komunikat|zwięzł|protokołowan|komunikacj|negocjac|prezentac|wystąpień|wystąpieni\\w* publiczn|asertywn|przekonywan|wypowiad",
     "teamwork": "zespo|współprac|współdziała|kooperac",
     "self_organisation": "organizacj\\w* (pracy|czasu)|samodzieln|terminow|zarządzani\\w* czasem|planowan|dyspozycyjn|systematyczn|sumienn|rzetelno|skrupulatn|dokładno|obowiązkow|zaangażowan|odpowiedzialno|presj\\w* czasu|wieloma zadaniami|równocześnie|dociekliw|wnikliw",
     "stress_resilience": "stres|odporno|wytrwał|elastyczn|adaptac|gotowość do zmian|presj|kryzysow",
@@ -49,6 +49,6 @@
     "project_management": "zarządzani\\w* projekt|projektow|harmonogram|prince|agile|fundusz\\w* (unijn|europejsk)",
     "creativity_initiative": "kreatywn|inicjatyw|innowac|proaktywn|pomysłow",
     "customer_service": "obsług\\w* (klient|interesant)|kultur\\w* osobist|kultur\\w* pracy|życzliw|orientacj\\w* na klient",
-    "domain_knowledge": "specjalistyczn|\\bwiedza\\b(?!.{0,60}(prawa|przepis|ustaw))|znajomość (technik|procesów|rynku|norm|zasad funkcjonowania)"
+    "domain_knowledge": "specjalistyczn|\\bwiedza\\b(?!.{0,80}(prawa|przepis|ustaw|organ))|znajomość (technik|procesów|rynku|norm|zasad funkcjonowania)"
   }
 }

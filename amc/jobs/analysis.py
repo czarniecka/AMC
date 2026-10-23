@@ -11,6 +11,8 @@ from datetime import date
 from pathlib import Path
 
 CUTOFF = date(2023, 1, 1)
+SPLIT = re.compile(r"\s*[;,]\s+|\s*;\s*|\s*,$")
+MIN_LENGTH = 4
 INSTITUTION_GROUPS = (
     ("veterinary", r"weterynar"),
     ("police", r"policj"),
@@ -60,17 +62,48 @@ def institution_group(institution: str, unit: str) -> str:
     return "other"
 
 
+def split_line(line: str) -> tuple[str, list[str]]:
+    """Return the lead-in before an early colon and the comma/semicolon-separated parts.
+
+    Commas inside numbers like 1,5 are kept because a space must follow the separator.
+    """
+    lead, body = "", line
+    colon = line.find(":")
+    if 0 < colon <= 60:
+        lead, body = line[:colon].strip(), line[colon + 1 :]
+    parts = (part.strip(" .:-\u2013\u00ad\t") for part in SPLIT.split(body))
+    return lead, [part for part in parts if len(part) >= MIN_LENGTH]
+
+
+def fragment_decision(codebook: Codebook, line: str, text: str) -> tuple[str, frozenset[str]]:
+    """Codebook decision for one fragment: ("boilerplate" | "formal" | "skill", categories).
+
+    The boilerplate and formal filters see the whole line, because a fragment such as
+    "wyższe weterynaryjne" has lost the keyword that marks it as formal. Skill regexes see
+    only the fragment text (with its list lead-in), the unit that is hand-labeled, so a
+    category named by one fragment is not credited to its siblings. Validation and the
+    analysis share this function.
+    """
+    if codebook.boilerplate.search(line):
+        return "boilerplate", frozenset()
+    if codebook.formal.search(line):
+        return "formal", frozenset()
+    return "skill", frozenset(name for name, rx in codebook.skills.items() if rx.search(text))
+
+
 def flag_ad(codebook: Codebook, required: str, optional: str) -> tuple[int, frozenset[str]]:
-    """Count substantive requirement lines and the skill categories they mention."""
-    lines = [line for line in (required + "\n" + optional).split("\n") if line.strip()]
-    lines = [line for line in lines if not codebook.boilerplate.search(line)]
-    skill_lines = [line for line in lines if not codebook.formal.search(line)]
-    found = {
-        name
-        for name, pattern in codebook.skills.items()
-        if any(pattern.search(line) for line in skill_lines)
-    }
-    return len(skill_lines), frozenset(found)
+    """Count substantive requirement lines and the skill categories of their fragments."""
+    lines = [line.strip() for line in (required + "\n" + optional).split("\n") if line.strip()]
+    count, found = 0, set()
+    for line in lines:
+        kind, _ = fragment_decision(codebook, line, line)
+        if kind != "skill":
+            continue
+        count += 1
+        lead, parts = split_line(line)
+        for part in parts or [line]:
+            found |= fragment_decision(codebook, line, f"{lead}: {part}" if lead else part)[1]
+    return count, frozenset(found)
 
 
 def fisher_exact(a: int, b: int, c: int, d: int) -> float:

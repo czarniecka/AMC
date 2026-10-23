@@ -63,10 +63,14 @@ about 0.6 GB of GPU memory for qwen3:8b). In Docker:
 - [Operations](docs/operations.md): Makefile, Docker, GPU, CSV fields and resuming.
 - [YouTube collector](docs/youtube/youtube-collector.md): collection behavior and privacy.
 - [Sampling methodology](docs/youtube/comment-sampling.md): research limitations.
+- [YouTube labeling and validation](docs/youtube/comment-labeling-guide.md): codebook,
+  blind pilot/evaluation sheets, human gold standard and model quality reports.
+- [YouTube pilot results](docs/youtube/validation-results.md): completed 50-comment
+  single-annotator validation, reproducible reports and methodological limitations.
 - [KPRM job ads](docs/jobs/kprm-collection.md): pilot sample of public job advertisements.
 - [Skill scope](docs/jobs/skill-scope.md): codebook and pre/post-2023 comparison.
 - [ESCO skills](docs/jobs/esco.md): downloading the Polish ESCO skills taxonomy.
-- [Labeling guide](docs/jobs/labeling-guide.md): hand labels for validating the codebook and ESCO mapping.
+- [Labeling guide](docs/jobs/labeling-guide.md): gold standard (hand labels) for validating the codebook and ESCO mapping.
 - [ESCO mapping](docs/jobs/esco-mapping.md): embedding match of fragments to ESCO and threshold calibration.
 - [Candidate review](docs/youtube/youtube-candidates-review.md): rationale for the pilot list.
 
@@ -77,7 +81,8 @@ Compose files, `pyproject.toml`, `uv.lock`, `.python-version`, `.env.example`,
 `.gitignore`, `.dockerignore`, `.editorconfig` and `.gitattributes`.
 Do not copy `.git`, `.venv`, caches or `.idea`. Create `.env` privately in the new
 location. Copy all CSV files in `data/` separately if preserving collection and
-classification history, and keep them out of Git. Stop writers before copying.
+classification history. Raw collections stay out of Git; the exceptions are listed in
+[Versioned research data](docs/operations.md#versioned-research-data). Stop writers before copying.
 A different directory name gives Compose a different project name and model
 volume; the new project may download the model again. To intentionally reuse the
 existing stack and volume, use `docker compose -p amc_projekt ...` and stop the

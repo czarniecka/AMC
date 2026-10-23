@@ -1,5 +1,13 @@
 .PHONY: setup web discover collect check up down logs docker-discover docker-collect
 ARGS ?=
+.PHONY: annotate
+annotate:
+	uv run --locked python scripts/run_annotation.py
+.PHONY: youtube-labeling youtube-validation
+youtube-labeling:
+	uv run --locked python scripts/youtube/validate_comments.py prepare $(ARGS)
+youtube-validation:
+	uv run --locked python scripts/youtube/validate_comments.py evaluate $(ARGS)
 COMPOSE = docker compose $(if $(filter 1,$(GPU)),-f compose.yaml -f compose.gpu.yaml,)
 .PHONY: classify docker-classify classify-wykop docker-classify-wykop
 classify:

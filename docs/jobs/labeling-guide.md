@@ -52,6 +52,14 @@ If a competence fits none of them, use `none` and describe it in `note`; those n
 the codebook is missing. Use `note` also for uncertainty ("unsure") or an ESCO skill you
 recognise.
 
+## Status and versioning
+
+Both sheets are fully labeled by a single coder: `label_sheet.csv` (150 fragments) and
+`esco_review.csv` (91 competence fragments). They are the gold standard for the codebook
+and the ESCO threshold and are versioned in Git together with their keys. Do not edit
+them in place; a new labeling round gets a new file. `*.excel_backup.csv` copies are
+not versioned. Agreement between two coders (Cohen's kappa) has not been measured yet.
+
 ## Next stage
 
 After the sheet is labeled, the ESCO matcher proposes the three closest ESCO skills for every
