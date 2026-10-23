@@ -1,0 +1,6 @@
+﻿sample_id,human_relevance,model_relevance,human_impact,model_impact
+P005,relevant,unrelated,negative,unclear
+P008,relevant,unrelated,negative,unclear
+P021,relevant,relevant,positive,mixed
+P045,unrelated,relevant,unclear,positive
+P050,unrelated,relevant,unclear,unclear
