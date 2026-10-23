@@ -73,9 +73,7 @@ def run(
         raise ValueError("Classification output must be separate from the source.")
     done = completed(output, model)
     # `text` becomes what the model reads, so `text_hash` changes when the cleaning does.
-    rows = [
-        {**row, "text": model_text(row["text"])} for row in read_rows(source, records.COLUMNS)
-    ]
+    rows = [{**row, "text": model_text(row["text"])} for row in read_rows(source, records.COLUMNS)]
     rows = [row for row in rows if row["text"]]
     random.Random(seed).shuffle(rows)
     todo = [
