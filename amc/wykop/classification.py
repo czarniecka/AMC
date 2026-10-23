@@ -31,6 +31,17 @@ COLUMNS = (
     "classified_at",
 )
 SEED = 20261013
+LABELED_COLUMNS = (
+    "type",
+    "entry_id",
+    "parent_id",
+    "created_at",
+    "url",
+    "text",
+    "ai",
+    "work",
+    "stance",
+)
 
 
 # Mirko Anonim posts carry a bot header and footer; since July 2025 the header is an
@@ -117,3 +128,28 @@ def run(
             pool.shutdown(wait=False, cancel_futures=True)
     log(f"Saved {added} predictions; {invalid} invalid answers will be retried next run.")
     return added
+
+
+def labeled(source: Path, labels: Path, model: str) -> tuple[list[dict[str, str]], int]:
+    """Texts joined with their labels from `model` and the current prompt.
+
+    The text is what the model read. Labels of texts that changed since classification are
+    left out; their number is returned with the rows.
+    """
+    current = {
+        (row["type"], row["entry_id"]): row
+        for row in read_rows(labels, COLUMNS)
+        if row["model"] == model and row["prompt_hash"] == PROMPT_HASH
+    }
+    rows, matched = [], 0
+    for row in read_rows(source, records.COLUMNS):
+        label = current.get((row["type"], row["entry_id"]))
+        if label is None:
+            continue
+        text = model_text(row["text"])
+        if label["text_hash"] != text_hash(text):
+            continue
+        matched += 1
+        values = {**row, "text": text, **label}
+        rows.append({column: values[column] for column in LABELED_COLUMNS})
+    return rows, len(current) - matched

@@ -179,6 +179,10 @@ class ClassificationTests(unittest.TestCase):
             self.assertEqual(len(saved), 4)
             self.assertEqual({row["prompt_hash"] for row in saved}, {job_concern.PROMPT_HASH})
             self.assertEqual({row["stance"] for row in saved}, {"threat"})
+            joined, stale = classification.labeled(source, output, "m")
+            self.assertEqual((len(joined), stale), (2, 0))
+            self.assertEqual(tuple(joined[0]), classification.LABELED_COLUMNS)
+            self.assertEqual({row["text"] for row in joined}, {"AI took my job", "I like Python"})
 
 
 if __name__ == "__main__":
