@@ -8,6 +8,7 @@ To pierwsza, wstępna analiza: służy do przesiania tekstów niezwiązanych z A
 
 - Oceniasz tylko to, co autor napisał. Nie domyślaj się niewyrażonych opinii.
 - Hashtagi (#ai, #programista15k), linki i same tagi nie są dowodem.
+- Obrazy, filmy i linki: model ich nie widzi, więc Ty też nie. Oceniasz tylko słowa autora, a załącznik pomijasz. Wpis z samym linkiem lub obrazem, bez słów o AI i pracy, to `ai` no, `work` no, `stance` none.
 - Model widzi tylko treść tekstu, więc Ty też oceniasz wyłącznie ją, bez zaglądania do wpisu nadrzędnego, linku czy tytułu.
 - Wątpliwości: wybierz najbezpieczniejszą etykietę (`no` / `none`).
 - Kolejność: `ai`, potem `work`, potem `stance`. Jeśli `ai` = no lub `work` = no, to `stance` = none.
@@ -17,6 +18,7 @@ To pierwsza, wstępna analiza: służy do przesiania tekstów niezwiązanych z A
 - **yes**: ChatGPT, GPT, Claude, Gemini, Copilot, Midjourney, LLM, "sztuczna inteligencja", AI/SI, boty AI, generatywna AI, automatyzacja zadań takimi narzędziami.
 - **no**: zwykłe oprogramowanie, skrypty, Excel, roboty przemysłowe bez wzmianki o AI, "algorytm" w ogólnym sensie (chyba że autor mówi wprost o AI), same hashtagi, nazwa narzędzia w innym znaczeniu (imię Claude).
 - Samo "automatyzacja" lub "wdrożenie narzędzi" bez nazwania AI: **no**.
+- "Wygenerował", "wygenerowałem", "generator" przy treści (tekst, list, obraz, kod) oznacza użycie AI, więc **yes**, nawet bez nazwy narzędzia (np. "zabawne, że mi ten list wygenerował jako kobieta").
 
 ## `work`: yes / no
 
