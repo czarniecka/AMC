@@ -59,6 +59,8 @@ and labels with a CLARIN-PL model. Credentials: `WYKOP_KEY`, `WYKOP_SECRET`, `WY
 - [Operations](docs/operations.md): Makefile, Docker, GPU, CSV fields and resuming.
 - [YouTube collector](docs/youtube/youtube-collector.md): collection behavior and privacy.
 - [Sampling methodology](docs/youtube/comment-sampling.md): research limitations.
+- [Seeded English sample](docs/youtube/random-sample.md): resumable work-topic searches,
+  ChatGPT launch cutoff, language and engagement filters, Label Studio export.
 - [YouTube labeling and validation](docs/youtube/comment-labeling-guide.md): codebook,
   blind pilot/evaluation sheets, human gold standard and model quality reports.
 - [YouTube pilot results](docs/youtube/validation-results.md): completed 50-comment
