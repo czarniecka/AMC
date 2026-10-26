@@ -211,21 +211,32 @@ wartości i zasadę `h1_related=no` → `job_security_concern=no`. Odpowiedzi
 niekompletne lub błędne trzeba ponowić. Walidację i wysyłanie wykonuje
 `scripts/youtube/run_screening.py`.
 
-Ustaw prywatnie `OPENAI_API_KEY` w `.env` lub środowisku. Najpierw wykonaj jedną
-paczkę i obejrzyj wynik:
+Ustaw prywatnie `OPENAI_API_KEY` w `.env` lub środowisku. Najpierw przygotuj i
+wyślij do OpenAI Batch API jedną paczkę próbną:
 
 ```bash
-uv run --locked python scripts/youtube/run_screening.py \
+uv run --locked python scripts/youtube/run_screening.py prepare \
   --input-dir data/youtube/screening/work_v1 \
-  --output data/youtube/screening/work_v1/luna_predictions.jsonl \
+  --run-dir data/youtube/screening/work_v1/luna_pilot \
   --limit-batches 1
+uv run --locked python scripts/youtube/run_screening.py submit \
+  --run-dir data/youtube/screening/work_v1/luna_pilot
+uv run --locked python scripts/youtube/run_screening.py status \
+  --run-dir data/youtube/screening/work_v1/luna_pilot
+uv run --locked python scripts/youtube/run_screening.py fetch \
+  --input-dir data/youtube/screening/work_v1 \
+  --run-dir data/youtube/screening/work_v1/luna_pilot
 ```
 
-Następnie powtórz bez `--limit-batches 1`, by skrypt pominął zapisaną paczkę i
-ocenił pozostałe. Każda paczka to jedno żądanie do Responses API. Wysłanie
+Polecenie `status` powtarzaj, aż batch się zakończy; dopiero wtedy użyj `fetch`.
+Obejrzyj `predictions.jsonl` i `validation_report.json`. Pełny przebieg
+przygotuj w nowym katalogu bez `--limit-batches 1`, a następnie wykonaj
+submit/status/fetch. Każda paczka komentarzy staje się jednym żądaniem w
+asynchronicznym zadaniu Batch API. Wysłanie
 komentarzy do zewnętrznego API przekazuje ich treść usługodawcy i może kosztować;
-sprawdź próbny wynik przed pełnym przebiegiem. Plik `batches.jsonl` ma format
-wewnętrzny projektu, a nie format wejściowy OpenAI Batch API.
+sprawdź próbny wynik przed pełnym przebiegiem. Batch API wymaga JSONL z jednym
+żądaniem API na linię: skrypt tworzy taki plik `requests.jsonl` z wewnętrznego
+`batches.jsonl`, a potem przesyła go przez Files API.
 
 `manifest.csv` pozwala połączyć krótkie ID z `comment_id`, `video_id`, datą
 publikacji, okresem `pre`/`post` i hashem tekstu. Tych metadanych nie ma w

@@ -1,11 +1,19 @@
-"""Send prepared H1 batches to the OpenAI Responses API with resumable validation."""
+"""Prepare, submit, and validate H1 screening through the OpenAI Batch API."""
 
 import hashlib
 import json
 import os
+import tempfile
 from pathlib import Path
 
 import requests
+
+BASE_URL = "https://api.openai.com/v1"
+REQUESTS_FILE = "requests.jsonl"
+JOB_FILE = "job.json"
+RESULTS_FILE = "results.jsonl"
+ERRORS_FILE = "errors.jsonl"
+PREDICTIONS_FILE = "predictions.jsonl"
 
 SCHEMA = {
     "type": "object",
@@ -28,6 +36,45 @@ SCHEMA = {
     "required": ["batch_id", "labels"],
     "additionalProperties": False,
 }
+
+
+def _write_json(path: Path, value: dict) -> None:
+    """Replace state atomically."""
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=path.parent, delete=False
+        ) as stream:
+            temporary = Path(stream.name)
+            json.dump(value, stream, ensure_ascii=False, indent=2)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def _read_jsonl(path: Path) -> list[dict]:
+    with path.open(encoding="utf-8") as stream:
+        return [json.loads(line) for line in stream if line.strip()]
+
+
+def _load_inputs(input_dir: Path) -> tuple[dict, list[dict]]:
+    config = json.loads((input_dir / "screening_config.json").read_text(encoding="utf-8"))
+    batches = _read_jsonl(input_dir / "batches.jsonl")
+    if len(batches) != config["batches"] or not batches:
+        raise ValueError("Prepared batch count differs from screening_config.json")
+    seen = set()
+    for batch in batches:
+        if batch["batch_id"] in seen or not batch["comments"]:
+            raise ValueError("Duplicate or empty prepared batch")
+        seen.add(batch["batch_id"])
+        ids = [item["id"] for item in batch["comments"]]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Duplicate comment ID within a prepared batch")
+    return config, batches
 
 
 def validate(batch: dict, answer: object) -> dict:
@@ -72,110 +119,236 @@ def _output_text(response: dict) -> str:
     return parts[0]
 
 
-def run(
+def prepare(
     input_dir: Path,
-    output_path: Path,
+    run_dir: Path,
     *,
     model: str = "gpt-6-luna",
     limit_batches: int | None = None,
-    api_key: str | None = None,
-    session: requests.Session | None = None,
-) -> int:
-    """Append only validated predictions and resume an unchanged cohort."""
-    if limit_batches is not None and limit_batches < 1:
-        raise ValueError("limit_batches must be positive")
-    if not model.strip():
-        raise ValueError("model must be non-empty")
-    config = json.loads((input_dir / "screening_config.json").read_text(encoding="utf-8"))
-    instruction = config["instruction"]
-    instruction_hash = hashlib.sha256(instruction.encode()).hexdigest()
-    source_sha256 = config["source_sha256"]
-    batches = [
-        json.loads(line)
-        for line in (input_dir / "batches.jsonl").read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    ]
-    if len(batches) != config["batches"]:
-        raise ValueError("Batch count differs from screening_config.json")
-    by_id = {}
-    for batch in batches:
-        batch_id = batch["batch_id"]
-        if batch_id in by_id or not batch["comments"]:
-            raise ValueError("Duplicate or empty input batch")
-        by_id[batch_id] = batch
-    completed = set()
-    if output_path.exists():
-        with output_path.open(encoding="utf-8") as stream:
-            for line in stream:
-                row = json.loads(line)
-                if (
-                    row["batch_id"] not in by_id
-                    or row["batch_id"] in completed
-                    or row["model"] != model
-                    or row["instruction_hash"] != instruction_hash
-                    or row["source_sha256"] != source_sha256
-                ):
-                    raise ValueError("Existing output belongs to a different or invalid run")
-                validate(by_id[row["batch_id"]], row["answer"])
-                completed.add(row["batch_id"])
-    pending = [batch for batch in batches if batch["batch_id"] not in completed]
-    if limit_batches is not None:
-        pending = pending[:limit_batches]
-    if not pending:
-        return 0
+) -> dict:
+    """Create an OpenAI Batch API request file from frozen project batches."""
+    if run_dir.exists():
+        raise ValueError("Run directory already exists; choose a new path")
+    if not model.strip() or (limit_batches is not None and limit_batches < 1):
+        raise ValueError("Provide a model and a positive limit_batches")
+    config, batches = _load_inputs(input_dir)
+    selected = batches[:limit_batches]
+    if not selected:
+        raise ValueError("No batches selected")
+    run_dir.mkdir(parents=True)
+    requests_path = run_dir / REQUESTS_FILE
+    with requests_path.open("w", encoding="utf-8") as stream:
+        for batch in selected:
+            request = {
+                "custom_id": batch["batch_id"],
+                "method": "POST",
+                "url": "/v1/responses",
+                "body": {
+                    "model": model,
+                    "instructions": config["instruction"],
+                    "input": json.dumps(batch, ensure_ascii=False),
+                    "text": {
+                        "format": {
+                            "type": "json_schema",
+                            "name": "h1_screening",
+                            "strict": True,
+                            "schema": SCHEMA,
+                        }
+                    },
+                },
+            }
+            stream.write(json.dumps(request, ensure_ascii=False) + "\n")
+    job = {
+        "model": model,
+        "source_sha256": config["source_sha256"],
+        "batches_sha256": hashlib.sha256((input_dir / "batches.jsonl").read_bytes()).hexdigest(),
+        "instruction_hash": hashlib.sha256(config["instruction"].encode()).hexdigest(),
+        "request_sha256": hashlib.sha256(requests_path.read_bytes()).hexdigest(),
+        "batch_ids": [batch["batch_id"] for batch in selected],
+        "input_file_id": None,
+        "batch_id": None,
+        "status": "prepared",
+        "output_file_id": None,
+        "error_file_id": None,
+    }
+    _write_json(run_dir / JOB_FILE, job)
+    return job
+
+
+def _job(run_dir: Path) -> dict:
+    job = json.loads((run_dir / JOB_FILE).read_text(encoding="utf-8"))
+    actual = hashlib.sha256((run_dir / REQUESTS_FILE).read_bytes()).hexdigest()
+    if actual != job["request_sha256"]:
+        raise ValueError("Batch request file changed after preparation")
+    return job
+
+
+def _client(api_key: str | None, session: requests.Session | None) -> tuple[requests.Session, bool]:
     key = api_key or os.getenv("OPENAI_API_KEY", "")
     if not key:
-        raise ValueError("Set OPENAI_API_KEY before sending screening batches")
-    if output_path.resolve() in {
-        (input_dir / name).resolve()
-        for name in ("batches.jsonl", "manifest.csv", "screening_config.json")
-    }:
-        raise ValueError("Output must not overwrite frozen screening inputs")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    own_session = session is None
+        raise ValueError("Set OPENAI_API_KEY before using the OpenAI Batch API")
     client = session or requests.Session()
-    added = 0
+    client.headers.update({"Authorization": f"Bearer {key}"})
+    return client, session is None
+
+
+def submit(
+    run_dir: Path, *, api_key: str | None = None, session: requests.Session | None = None
+) -> dict:
+    """Upload the request file once, then create one asynchronous Batch job."""
+    job = _job(run_dir)
+    if job["batch_id"]:
+        return job
+    client, owned = _client(api_key, session)
     try:
-        with output_path.open("a", encoding="utf-8") as stream:
-            for batch in pending:
+        if not job["input_file_id"]:
+            with (run_dir / REQUESTS_FILE).open("rb") as stream:
                 response = client.post(
-                    "https://api.openai.com/v1/responses",
-                    headers={"Authorization": f"Bearer {key}"},
-                    json={
-                        "model": model,
-                        "instructions": instruction,
-                        "input": json.dumps(batch, ensure_ascii=False),
-                        "text": {
-                            "format": {
-                                "type": "json_schema",
-                                "name": "h1_screening",
-                                "strict": True,
-                                "schema": SCHEMA,
-                            }
-                        },
-                    },
+                    f"{BASE_URL}/files",
+                    data={"purpose": "batch"},
+                    files={"file": (REQUESTS_FILE, stream, "application/jsonl")},
                     timeout=(10, 300),
                 )
-                response.raise_for_status()
-                answer = validate(batch, json.loads(_output_text(response.json())))
-                stream.write(
-                    json.dumps(
-                        {
-                            "batch_id": batch["batch_id"],
-                            "model": model,
-                            "instruction_hash": instruction_hash,
-                            "source_sha256": source_sha256,
-                            "answer": answer,
-                        },
-                        ensure_ascii=False,
-                    )
-                    + "\n"
-                )
-                stream.flush()
-                os.fsync(stream.fileno())
-                added += 1
-                print(f"Validated batch {batch['batch_id']} ({added} new).", flush=True)
+            response.raise_for_status()
+            job["input_file_id"] = response.json()["id"]
+            _write_json(run_dir / JOB_FILE, job)
+        response = client.post(
+            f"{BASE_URL}/batches",
+            json={
+                "input_file_id": job["input_file_id"],
+                "endpoint": "/v1/responses",
+                "completion_window": "24h",
+            },
+            timeout=(10, 60),
+        )
+        response.raise_for_status()
+        batch = response.json()
+        job["batch_id"] = batch["id"]
+        job["status"] = batch["status"]
+        _write_json(run_dir / JOB_FILE, job)
+        return job
     finally:
-        if own_session:
+        if owned:
             client.close()
-    return added
+
+
+def status(
+    run_dir: Path, *, api_key: str | None = None, session: requests.Session | None = None
+) -> dict:
+    """Refresh Batch status without submitting another job."""
+    job = _job(run_dir)
+    if not job["batch_id"]:
+        raise ValueError("Submit this run before checking status")
+    client, owned = _client(api_key, session)
+    try:
+        response = client.get(f"{BASE_URL}/batches/{job['batch_id']}", timeout=(10, 60))
+        response.raise_for_status()
+        batch = response.json()
+        if batch["id"] != job["batch_id"]:
+            raise ValueError("OpenAI returned a different Batch ID")
+        job["status"] = batch["status"]
+        job["output_file_id"] = batch.get("output_file_id")
+        job["error_file_id"] = batch.get("error_file_id")
+        _write_json(run_dir / JOB_FILE, job)
+        return job
+    finally:
+        if owned:
+            client.close()
+
+
+def _download(client: requests.Session, file_id: str, target: Path) -> None:
+    if target.exists():
+        return
+    response = client.get(f"{BASE_URL}/files/{file_id}/content", timeout=(10, 300))
+    response.raise_for_status()
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(response.content)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, target)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def fetch(
+    input_dir: Path,
+    run_dir: Path,
+    *,
+    api_key: str | None = None,
+    session: requests.Session | None = None,
+) -> dict[str, int]:
+    """Download output and write only fully validated predictions."""
+    config, batches = _load_inputs(input_dir)
+    by_id = {batch["batch_id"]: batch for batch in batches}
+    job = _job(run_dir)
+    if (
+        job["source_sha256"] != config["source_sha256"]
+        or job["batches_sha256"]
+        != hashlib.sha256((input_dir / "batches.jsonl").read_bytes()).hexdigest()
+        or job["instruction_hash"] != hashlib.sha256(config["instruction"].encode()).hexdigest()
+    ):
+        raise ValueError("This run belongs to a different prepared input")
+    if (run_dir / PREDICTIONS_FILE).exists():
+        raise ValueError("Predictions already exist; do not overwrite reviewed output")
+    job = status(run_dir, api_key=api_key, session=session)
+    if job["status"] not in {"completed", "failed", "expired", "cancelled"}:
+        raise ValueError(f"Batch is not finished: {job['status']}")
+    client, owned = _client(api_key, session)
+    try:
+        if job["output_file_id"]:
+            _download(client, job["output_file_id"], run_dir / RESULTS_FILE)
+        if job["error_file_id"]:
+            _download(client, job["error_file_id"], run_dir / ERRORS_FILE)
+    finally:
+        if owned:
+            client.close()
+    rows = _read_jsonl(run_dir / RESULTS_FILE) if (run_dir / RESULTS_FILE).exists() else []
+    expected = set(job["batch_ids"])
+    predictions = {}
+    failures = []
+    seen = set()
+    for row in rows:
+        custom_id = row.get("custom_id")
+        if custom_id not in expected or custom_id in seen:
+            raise ValueError("Unexpected or duplicate custom_id in Batch results")
+        seen.add(custom_id)
+        response = row.get("response")
+        if row.get("error") or not response or response.get("status_code") != 200:
+            failures.append(custom_id)
+            continue
+        try:
+            answer = validate(by_id[custom_id], json.loads(_output_text(response["body"])))
+        except (KeyError, TypeError, ValueError):
+            failures.append(custom_id)
+            continue
+        predictions[custom_id] = {
+            "batch_id": custom_id,
+            "model": job["model"],
+            "instruction_hash": job["instruction_hash"],
+            "source_sha256": job["source_sha256"],
+            "answer": answer,
+        }
+    if (run_dir / ERRORS_FILE).exists():
+        for row in _read_jsonl(run_dir / ERRORS_FILE):
+            custom_id = row.get("custom_id")
+            if custom_id not in expected or custom_id in seen:
+                raise ValueError("Unexpected or duplicate custom_id in Batch errors")
+            seen.add(custom_id)
+            failures.append(custom_id)
+    missing = sorted(expected - seen)
+    with (run_dir / PREDICTIONS_FILE).open("x", encoding="utf-8") as stream:
+        for custom_id in job["batch_ids"]:
+            if custom_id in predictions:
+                stream.write(json.dumps(predictions[custom_id], ensure_ascii=False) + "\n")
+    report = {
+        "expected": len(expected),
+        "valid": len(predictions),
+        "failed": len(failures),
+        "missing": len(missing),
+    }
+    _write_json(run_dir / "validation_report.json", report)
+    return report

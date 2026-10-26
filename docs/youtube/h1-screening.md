@@ -32,22 +32,34 @@ line of `batches.jsonl` per request. It requires one JSON response containing
 Malformed or incomplete responses stop the run; rerun after checking the error.
 Completed batches are skipped.
 
-## Run GPT-6 Luna
+## Run GPT-6 Luna with OpenAI Batch API
 
 Set `OPENAI_API_KEY` in your private `.env` or environment. Sending comments to
 this API transfers their text to an external provider and incurs API charges.
-Start with one batch and inspect the output:
+Start with a one-request pilot. The first command only prepares the real OpenAI
+Batch API request file; `submit` uploads it and creates an asynchronous job:
 
 ```text
-uv run --locked python scripts/youtube/run_screening.py --input-dir data/youtube/screening/work_v1 --output data/youtube/screening/work_v1/luna_predictions.jsonl --limit-batches 1
+uv run --locked python scripts/youtube/run_screening.py prepare --input-dir data/youtube/screening/work_v1 --run-dir data/youtube/screening/work_v1/luna_pilot --limit-batches 1
+uv run --locked python scripts/youtube/run_screening.py submit --run-dir data/youtube/screening/work_v1/luna_pilot
+uv run --locked python scripts/youtube/run_screening.py status --run-dir data/youtube/screening/work_v1/luna_pilot
+uv run --locked python scripts/youtube/run_screening.py fetch --input-dir data/youtube/screening/work_v1 --run-dir data/youtube/screening/work_v1/luna_pilot
 ```
 
-Rerun the same command without `--limit-batches 1` to process the remaining
-batches. Use the same output path, input snapshot and model to resume. The output
-is append-only JSONL with validated labels, model name, instruction hash and
-source hash. A changed model, prompt or input needs a different output file.
-The runner uses the Responses API synchronously, one request per prepared batch;
-the project's JSONL is not itself an OpenAI Batch API request file.
+Run `status` again until the job is complete, then run `fetch`. Inspect
+`luna_pilot/predictions.jsonl` and `validation_report.json`. For all prepared
+batches, create a **different** run directory and omit `--limit-batches` from
+`prepare`; then repeat submit/status/fetch. This full run includes the pilot
+request again, so deduplicate by `batch_id` if combining outputs. `submit` does
+not create a second job after recording a Batch ID. `fetch` downloads provider
+output and error files, validates every returned comment ID and writes only
+validated predictions. Missing or failed requests are counted in the report.
+
+OpenAI's Batch API itself requires JSONL, with one API request per line and a
+unique `custom_id`. The runner converts the project's comment-group JSONL into
+that required format (`requests.jsonl`), uploads it through the Files API and
+submits it to the `/v1/responses` Batch endpoint. Each API request still carries
+up to 100 comments, so the current 283 prepared groups form 283 Batch requests.
 
 `manifest.csv` maps IDs back to source `video_id`, `comment_id`, publication time,
 pre/post period and text hash. The model input contains only comment text and a
