@@ -1,11 +1,12 @@
 # English YouTube comment sample
 
 This is a separate collection from the reviewed AI-video pilot. The default
-sampling frame is videos returned by seeded English searches about jobs, hiring,
-pay, skills, layoffs, and workplace change, **not** all YouTube videos. The
-versioned [work query list](../../config/youtube/work_queries.txt) contains no
-explicit AI or ChatGPT terms. This topic-enriched sample cannot estimate AI
-discussion across all YouTube comments.
+sampling frame is videos returned by seeded English searches about the future of
+jobs and automation, AI-exposed IT jobs and general job search, **not** all YouTube
+videos. The versioned [work query list](../../config/youtube/work_queries.txt)
+contains no explicit AI or ChatGPT terms; how the phrases were chosen and their
+limits are in [query selection](query-selection.md). This topic-enriched sample cannot
+estimate AI discussion across all YouTube comments.
 Video publication periods are `pre_chatgpt` (2019-01-01 through 2022-11-29)
 and `post_chatgpt` (2022-11-30 through 2026-12-31). The date boundary is the
 public launch date of ChatGPT
@@ -14,7 +15,7 @@ timestamps are compared in UTC. With a date-only announcement, the entire UTC da
 of November 30 is assigned to `post_chatgpt`.
 Each eligible video must have
 at least 10,000 views, an English `defaultAudioLanguage` or `defaultLanguage` in API
-metadata, and at least one comment. Only top-level comments with at least 20
+metadata, and at least 50 comments (`--min-comments`, default 50). Only top-level comments with at least 20
 characters after text cleaning are stored, regardless of likes. Their text must
 also pass `langdetect` with English probability at
 least 0.90. This is an imperfect automated language screen, especially for short
@@ -35,7 +36,10 @@ uv run --locked python scripts/youtube/collect_random_sample.py export --export-
 
 The same database resumes after interruption or after increasing `--target`. Other
 sampling settings and the SHA-256 of the vocabulary file are frozen on the first
-run; changing them requires a new database. The default database is
+run; changing them requires a new database. The current query list and the
+minimum-comment rule need a new database, for example
+`--database data/youtube/work_sample_v3/sample.sqlite3`; `work_sample_v2` was
+collected with the old phrases and filters. The default database is
 `data/youtube/work_sample_v2/sample.sqlite3`; the previous broad sample remains
 at `data/youtube/random_sample/sample.sqlite3`. The first work sample, if
 collected, remains at `data/youtube/work_sample/sample.sqlite3`. Those databases
