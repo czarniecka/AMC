@@ -43,6 +43,13 @@ def validate_labels(labels: object) -> dict[str, str]:
 
 def classify(comment: str, model: str) -> dict[str, str]:
     """Request two validated labels without thinking or conversation history."""
+    return validate_labels(ask(comment, model, INSTRUCTION, SCHEMA))
+
+
+def ask(text: str, model: str, instruction: str, schema: dict) -> object:
+    """Parsed JSON answer constrained by `schema`; ValueError on an unusable answer.
+
+    A new session per call, so several threads may classify at once."""
     with requests.Session() as session:
         session.trust_env = False
         response = session.post(
@@ -52,11 +59,11 @@ def classify(comment: str, model: str) -> dict[str, str]:
                 "think": False,
                 "stream": False,
                 "keep_alive": "15m",
-                "format": SCHEMA,
+                "format": schema,
                 "options": {"temperature": 0, "num_predict": 100},
                 "messages": [
-                    {"role": "system", "content": INSTRUCTION},
-                    {"role": "user", "content": comment},
+                    {"role": "system", "content": instruction},
+                    {"role": "user", "content": text},
                 ],
             },
             timeout=(5, 180),
@@ -65,4 +72,4 @@ def classify(comment: str, model: str) -> dict[str, str]:
         payload = response.json()
     if payload.get("done_reason") == "length":
         raise ValueError("The model response reached the output limit. Try a shorter comment.")
-    return validate_labels(json.loads(payload["message"]["content"]))
+    return json.loads(payload["message"]["content"])
