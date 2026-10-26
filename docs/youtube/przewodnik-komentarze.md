@@ -1,9 +1,11 @@
 # Komentarze z YouTube: pobieranie i przygotowanie do analizy H1
 
-Ten dokument opisuje obecny przepływ danych w repozytorium. Jednostką analizy
-jest **pojedynczy komentarz**, a `video_id` służy do ustalenia źródła i uniknięcia
-ponownego pobrania tego samego filmu. Skrypty pobierają publiczne komentarze
-najwyższego poziomu; nie pobierają odpowiedzi na komentarze.
+Ten dokument opisuje dwa istniejące zbiory YouTube na gałęzi
+`feat/youtube-work-sampling`: wcześniejszy pilot z wybranych filmów w CSV oraz
+próbę angielskich dyskusji o pracy w SQLite, z okresów przed i po premierze
+ChatGPT. Jednostką analizy jest **pojedynczy komentarz**. `video_id` służy do
+ustalenia źródła i uniknięcia ponownego pobrania tego samego filmu. Skrypty
+pobierają publiczne komentarze najwyższego poziomu, bez odpowiedzi.
 
 ## Po co zbieramy te dane
 
@@ -24,13 +26,14 @@ AI. Dane z YouTube nie testują H2; w repozytorium służą do tego osobne modu�
 ## Przepływ danych
 
 ```text
-zapytania YouTube → kandydaci (filmy) → wybór video_id → komentarze CSV
-                                                ↓
-                               paczki JSONL + manifest → mały model
-                                                           ↓
-                                  dobór 5–10 tys. wpisów → większy model
-                                                           ↓
-                                  kontrola ludzka → klasyfikator → analiza H1
+wyszukiwanie dyskusji o pracy → próba pre/post w SQLite ─┐
+wyszukiwanie i wybór filmów AI → pilot w CSV ─────────────┤
+                                                          ↓
+                                         paczki JSONL + manifest → mały model
+                                                                    ↓
+                                           dobór 5–10 tys. → większy model
+                                                                    ↓
+                                           kontrola ludzka → BERT → analiza H1
 ```
 
 W tym repozytorium działają pobieranie komentarzy i przygotowanie paczek JSONL.
@@ -53,7 +56,30 @@ Pobieranie zużywa limit żądań API. Domyślny lokalny limit to 200 żądań n
 uruchomienie; można go zmienić przez `--max-api-requests`. To ograniczenie
 liczby żądań skryptu, nie informacja o limicie konta YouTube.
 
-## 2. Znalezienie filmów i wybór źródeł komentarzy
+## 2. Próba dyskusji o pracy przed i po premierze ChatGPT
+
+Do porównania okresów w H1 użyj istniejącego kolektora na tej gałęzi:
+
+```bash
+uv run --locked python scripts/youtube/collect_random_sample.py status
+uv run --locked python scripts/youtube/collect_random_sample.py collect \
+  --target 30000 --seed 20261025
+```
+
+Kolektor zapisuje dane w `data/youtube/work_sample_v2/sample.sqlite3` i może
+wznawiać pobieranie. Wyszukuje angielskie dyskusje o pracy, zatrudnieniu,
+zwolnieniach i umiejętnościach, bez wpisywania AI/ChatGPT do zapytań. Dzięki
+temu obejmuje także komentarze niezwiązane z AI. Próbka ma osobne pule komentarzy
+sprzed i po 30 listopada 2022 r., według **daty komentarza**, nie daty filmu.
+Szczegółowe filtry języka, długości tekstu, wyświetleń i sposób doboru opisuje
+[dokumentacja tej próby](random-sample.md). Nie jest to reprezentatywna próba
+wszystkich komentarzy YouTube.
+
+## 3. Pilot z wybranych filmów: znalezienie źródeł
+
+Ten starszy przepływ jest przydatny do eksploracji komentarzy pod konkretnymi
+filmami o AI i pracy. Ma inne zasady doboru niż próba SQLite; nie łącz obu zbiorów
+bez sprawdzenia powtarzających się komentarzy i jawnego określenia ramy doboru.
 
 ```bash
 uv run --locked python scripts/youtube/discover_videos.py
@@ -85,7 +111,7 @@ uruchomienia nie dodają drugiego rekordu tego samego filmu. **Obecny eksport ni
 zapisuje jednak informacji, które zapytanie znalazło dany film**. Jeśli ta
 informacja jest potrzebna do doboru próby, należy ją prowadzić osobno.
 
-## 3. Pobranie komentarzy
+## 4. Pobranie komentarzy do pilota CSV
 
 ```bash
 uv run --locked python scripts/youtube/collect_comments.py --max-api-requests 500
@@ -118,7 +144,7 @@ zapisywany drugi raz. Przy przerwaniu przez limit lub błąd API zapisane strony
 pozostają w CSV, a następny przebieg może kontynuować pracę. Jeden błąd 403/429
 zatrzymuje cały przebieg. Stan ukończenia jest w `yt_collection_state.csv`.
 
-## 4. Pliki po pobraniu
+## 5. Pliki po pobraniu
 
 | Plik | Zawartość i zastosowanie |
 | --- | --- |
@@ -126,19 +152,25 @@ zatrzymuje cały przebieg. Stan ukończenia jest w `yt_collection_state.csv`.
 | `data/youtube/yt_comments_anonymized.csv` | Tekst, lokalne `comment_id`, `video_id`, data publikacji komentarza i liczba polubień. To główne wejście dla H1. |
 | `data/youtube/yt_collection_state.csv` | Stan pobierania i limit dla poszczególnych filmów; zachowaj go przy przenoszeniu danych. |
 | `data/youtube/yt_transcripts.csv` | Opcjonalne napisy; nie są potrzebne do klasyfikacji komentarzy. |
+| `data/youtube/work_sample_v2/sample.sqlite3` | Oddzielna próba dyskusji o pracy z obu okresów; zawiera komentarze, filmy, zapytania i stan pobierania. |
 
 Pobieranie nie żąda nazw autorów ani oryginalnych ID komentarzy. Nazwa pliku
 `anonymized` oznacza brak metadanych autora, lecz sam tekst może zawierać dane
 osobowe. Przejrzyj go przed udostępnieniem poza zespołem.
 
-## 5. Paczki dla małego modelu
+## 6. Paczki dla małego modelu
 
 Po zakończeniu lub wznowieniu pobierania przygotuj **nową, wersjonowaną** paczkę:
 
 ```bash
 uv run --locked python scripts/youtube/prepare_screening.py \
-  --output data/youtube/screening/v2
+  --database data/youtube/work_sample_v2/sample.sqlite3 \
+  --output data/youtube/screening/work_v1
 ```
+
+Bez `--database` skrypt przygotowuje starszy pilot z
+`data/youtube/yt_comments_anonymized.csv`. Każdy zbiór powinien mieć własny katalog
+wynikowy i manifest.
 
 Katalog wynikowy nie może już istnieć; dzięki temu nie nadpisuje się raz
 zamrożonej próby. Skrypt domyślnie tasuje wpisy z ziarnem `42` i tworzy jeden
@@ -179,7 +211,7 @@ publikacji, okresem `pre`/`post` i hashem tekstu. Tych metadanych nie ma w
 wiadomości dla modelu. Po dodaniu nowych komentarzy utwórz kolejny katalog,
 ponieważ stary manifest odnosi się do starej wersji źródłowego CSV.
 
-## 6. Co dalej z etykietami
+## 7. Co dalej z etykietami
 
 Wyniki małego modelu mają służyć **wyborowi** przykładów dla dużego modelu,
 nie być ostateczną odpowiedzią na H1. Planowany zbiór 5–10 tys. ocen powinien
@@ -188,13 +220,16 @@ komentarze. Losowa część jest ważna, bo próba celowo wzbogacona w określon
 klasy nie odzwierciedla ich częstości w całej kolekcji. Etykiety dużego modelu
 również wymagają kontroli przez ludzi przed użyciem jako dane treningowe.
 
-Na 26 października 2026 r. pobrano 4913 komentarzy i utworzono 50 paczek w
-`data/youtube/screening/v1`. **Wszystkie te komentarze są z okresu po premierze
-ChatGPT.** Sama obecna kolekcja nie pozwala przetestować wzrostu udziału obaw
-przed i po listopadzie 2022 r. Do tego potrzeba komentarzy opublikowanych
-przed premierą oraz porównywalnego sposobu doboru danych dla obu okresów.
+Na 26 października 2026 r. pilot CSV zawiera 4913 komentarzy i lokalne
+`data/youtube/screening/v1` ma 50 paczek. **Wszystkie komentarze pilota są z
+okresu po premierze ChatGPT.** Oddzielna baza `work_sample_v2` zawiera 12 899
+komentarzy z okresu przed premierą i 15 321 po premierze. Te liczby opisują
+bieżące lokalne dane, a nie gwarantowaną zawartość każdego klonu repozytorium.
+Do porównania udziałów potrzebna jest porównywalna rama doboru i kontrola jakości
+etykiet dla obu okresów.
 Komentarze opisują wypowiedzi użytkowników YouTube; nie mierzą bezpośrednio
 zmian zatrudnienia i same nie ustalają przyczyny tych zmian.
 
 Szczegóły techniczne i ograniczenia doboru opisują [collector](youtube-collector.md),
-[próbkowanie](comment-sampling.md) oraz [paczki H1](h1-screening.md).
+[próbkowanie](comment-sampling.md), [próba pre/post](random-sample.md) oraz
+[paczki H1](h1-screening.md).

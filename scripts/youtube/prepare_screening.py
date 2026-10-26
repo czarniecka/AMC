@@ -1,6 +1,7 @@
 """Prepare comment-only H1 screening batches for a small language model."""
 
 import argparse
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -13,6 +14,11 @@ def main() -> int:
     parser.add_argument(
         "--input", type=Path, default=Path("data/youtube/yt_comments_anonymized.csv")
     )
+    parser.add_argument(
+        "--database",
+        type=Path,
+        help="Use comments from the balanced YouTube sample SQLite database instead of --input",
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--batch-size", type=int, default=100)
     parser.add_argument("--max-batch-chars", type=int, default=30000)
@@ -20,13 +26,13 @@ def main() -> int:
     args = parser.parse_args()
     try:
         result = prepare(
-            args.input,
+            args.database or args.input,
             args.output,
             batch_size=args.batch_size,
             max_batch_chars=args.max_batch_chars,
             seed=args.seed,
         )
-    except (OSError, ValueError) as error:
+    except (OSError, ValueError, sqlite3.Error) as error:
         parser.exit(2, f"{error}\n")
     print(f"Prepared {result['comments']} comments in {result['batches']} batches: {args.output}")
     return 0

@@ -4,6 +4,7 @@ import csv
 import hashlib
 import json
 import random
+import sqlite3
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,6 +35,17 @@ the comment lacks enough context. If h1_related=no, job_security_concern must be
 Do not use the publication date or video topic to infer a label."""
 
 
+def _source_rows(path: Path) -> list[dict[str, str]]:
+    if path.suffix != ".sqlite3":
+        return read_rows(path, ("video_id", "comment_id", "text_clean", "published_at"))
+    with sqlite3.connect(f"file:{path.resolve()}?mode=ro", uri=True) as connection:
+        connection.row_factory = sqlite3.Row
+        rows = connection.execute(
+            "SELECT video_id, comment_id, text_clean, published_at FROM comments"
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
 def _timestamp(value: str) -> datetime:
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -59,7 +71,7 @@ def prepare(
         raise ValueError("max_batch_chars must be at least 1000")
     if output_dir.exists():
         raise ValueError("Output directory already exists; choose a new versioned path")
-    rows = read_rows(input_path, ("video_id", "comment_id", "text_clean", "published_at"))
+    rows = _source_rows(input_path)
     identities = set()
     selected = []
     for row in rows:

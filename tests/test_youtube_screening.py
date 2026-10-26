@@ -2,6 +2,7 @@
 
 import csv
 import json
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,27 @@ from amc.youtube.screening import prepare
 
 
 class ScreeningTests(unittest.TestCase):
+    def test_balanced_sample_database_can_be_prepared(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            database = root / "sample.sqlite3"
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "CREATE TABLE comments (video_id TEXT, comment_id TEXT, "
+                    "text_clean TEXT, published_at TEXT)"
+                )
+                connection.executemany(
+                    "INSERT INTO comments VALUES (?, ?, ?, ?)",
+                    [
+                        ("a", "1", "AI will take my job", "2022-11-29T12:00:00Z"),
+                        ("b", "2", "I use AI at work", "2022-12-01T12:00:00Z"),
+                    ],
+                )
+            output = root / "prepared"
+            self.assertEqual(prepare(database, output), {"comments": 2, "batches": 1})
+            config = json.loads((output / "screening_config.json").read_text())
+            self.assertEqual(config["period_counts"], {"post": 1, "pre": 1})
+
     def test_batches_preserve_identity_and_pre_post_dates(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
