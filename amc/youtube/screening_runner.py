@@ -333,6 +333,7 @@ def fetch(
     seen = set()
     usage_totals = {
         "requests_with_usage": 0,
+        "requests_with_cache_hits": 0,
         "input_tokens": 0,
         "cached_input_tokens": 0,
         "cache_write_input_tokens": 0,
@@ -367,7 +368,9 @@ def fetch(
             output_details = usage.get("output_tokens_details") or {}
             usage_totals["requests_with_usage"] += 1
             usage_totals["input_tokens"] += int(usage.get("input_tokens") or 0)
-            usage_totals["cached_input_tokens"] += int(input_details.get("cached_tokens") or 0)
+            cached = int(input_details.get("cached_tokens") or 0)
+            usage_totals["cached_input_tokens"] += cached
+            usage_totals["requests_with_cache_hits"] += int(cached > 0)
             usage_totals["cache_write_input_tokens"] += int(
                 input_details.get("cache_write_tokens") or 0
             )

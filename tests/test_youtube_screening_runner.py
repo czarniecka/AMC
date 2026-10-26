@@ -136,6 +136,7 @@ class ScreeningRunnerTests(unittest.TestCase):
         self.assertEqual(report["expected"], 1)
         self.assertEqual(report["valid"], 1)
         self.assertEqual(report["cached_input_tokens"], 1024)
+        self.assertEqual(report["requests_with_cache_hits"], 1)
         self.assertEqual(report["input_tokens"], 5000)
         self.assertEqual(report["output_tokens"], 2000)
         self.assertEqual(len((self.run_dir / "predictions.jsonl").read_text().splitlines()), 1)

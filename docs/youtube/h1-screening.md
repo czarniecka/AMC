@@ -55,7 +55,8 @@ not create a second job after recording a Batch ID. `fetch` downloads provider
 output and error files, validates every returned comment ID and writes only
 validated predictions. Missing or failed requests are counted in the report.
 Each prediction retains its API `usage`, and `validation_report.json` sums input,
-output, cached-input, cache-write and reasoning tokens across valid responses.
+output, cached-input, cache-write and reasoning tokens across valid responses. It
+also counts requests with at least one cached input token.
 
 The request uses a stable `prompt_cache_key` based on the instruction hash and an
 explicit cache breakpoint after the fixed instruction. Comment text comes after
