@@ -137,6 +137,8 @@ def prepare(
         raise ValueError("No batches selected")
     run_dir.mkdir(parents=True)
     requests_path = run_dir / REQUESTS_FILE
+    instruction_hash = hashlib.sha256(config["instruction"].encode()).hexdigest()
+    cache_key = f"amc:h1:{instruction_hash[:16]}"
     with requests_path.open("w", encoding="utf-8") as stream:
         for batch in selected:
             request = {
@@ -145,8 +147,22 @@ def prepare(
                 "url": "/v1/responses",
                 "body": {
                     "model": model,
-                    "instructions": config["instruction"],
-                    "input": json.dumps(batch, ensure_ascii=False),
+                    "reasoning": {"effort": "none"},
+                    "prompt_cache_key": cache_key,
+                    "prompt_cache_options": {"mode": "explicit", "ttl": "30m"},
+                    "input": [
+                        {
+                            "role": "developer",
+                            "content": [
+                                {
+                                    "type": "input_text",
+                                    "text": config["instruction"],
+                                    "prompt_cache_breakpoint": {"mode": "explicit"},
+                                }
+                            ],
+                        },
+                        {"role": "user", "content": json.dumps(batch, ensure_ascii=False)},
+                    ],
                     "text": {
                         "format": {
                             "type": "json_schema",
@@ -162,7 +178,8 @@ def prepare(
         "model": model,
         "source_sha256": config["source_sha256"],
         "batches_sha256": hashlib.sha256((input_dir / "batches.jsonl").read_bytes()).hexdigest(),
-        "instruction_hash": hashlib.sha256(config["instruction"].encode()).hexdigest(),
+        "instruction_hash": instruction_hash,
+        "prompt_cache_key": cache_key,
         "request_sha256": hashlib.sha256(requests_path.read_bytes()).hexdigest(),
         "batch_ids": [batch["batch_id"] for batch in selected],
         "input_file_id": None,
@@ -311,6 +328,14 @@ def fetch(
     predictions = {}
     failures = []
     seen = set()
+    usage_totals = {
+        "requests_with_usage": 0,
+        "input_tokens": 0,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_output_tokens": 0,
+    }
     for row in rows:
         custom_id = row.get("custom_id")
         if custom_id not in expected or custom_id in seen:
@@ -331,7 +356,22 @@ def fetch(
             "instruction_hash": job["instruction_hash"],
             "source_sha256": job["source_sha256"],
             "answer": answer,
+            "usage": response["body"].get("usage"),
         }
+        usage = response["body"].get("usage")
+        if isinstance(usage, dict):
+            input_details = usage.get("input_tokens_details") or {}
+            output_details = usage.get("output_tokens_details") or {}
+            usage_totals["requests_with_usage"] += 1
+            usage_totals["input_tokens"] += int(usage.get("input_tokens") or 0)
+            usage_totals["cached_input_tokens"] += int(input_details.get("cached_tokens") or 0)
+            usage_totals["cache_write_input_tokens"] += int(
+                input_details.get("cache_write_tokens") or 0
+            )
+            usage_totals["output_tokens"] += int(usage.get("output_tokens") or 0)
+            usage_totals["reasoning_output_tokens"] += int(
+                output_details.get("reasoning_tokens") or 0
+            )
     if (run_dir / ERRORS_FILE).exists():
         for row in _read_jsonl(run_dir / ERRORS_FILE):
             custom_id = row.get("custom_id")
@@ -349,6 +389,7 @@ def fetch(
         "valid": len(predictions),
         "failed": len(failures),
         "missing": len(missing),
+        **usage_totals,
     }
     _write_json(run_dir / "validation_report.json", report)
     return report

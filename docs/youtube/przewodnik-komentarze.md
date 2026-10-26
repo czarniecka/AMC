@@ -238,6 +238,12 @@ sprawdź próbny wynik przed pełnym przebiegiem. Batch API wymaga JSONL z jedny
 żądaniem API na linię: skrypt tworzy taki plik `requests.jsonl` z wewnętrznego
 `batches.jsonl`, a potem przesyła go przez Files API.
 
+Po `fetch` raport `validation_report.json` zawiera rzeczywistą liczbę tokenów
+wejściowych i wyjściowych oraz `cached_input_tokens` i
+`cache_write_input_tokens`. Żądania mają stały `prompt_cache_key` dla wersji
+instrukcji i punkt cache po jej końcu. Trafienia nie są gwarantowane: obecna
+instrukcja jest krótsza niż minimalne 1024 tokeny wspólnego prefiksu dla Luny.
+
 `manifest.csv` pozwala połączyć krótkie ID z `comment_id`, `video_id`, datą
 publikacji, okresem `pre`/`post` i hashem tekstu. Tych metadanych nie ma w
 wiadomości dla modelu. Po dodaniu nowych komentarzy utwórz kolejny katalog,

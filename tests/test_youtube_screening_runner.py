@@ -54,7 +54,14 @@ class ScreeningRunnerTests(unittest.TestCase):
         self.assertEqual(request["custom_id"], "b00001")
         self.assertEqual(request["url"], "/v1/responses")
         self.assertEqual(request["body"]["model"], "gpt-6-luna")
-        self.assertEqual(json.loads(request["body"]["input"]), self.batch)
+        self.assertEqual(json.loads(request["body"]["input"][1]["content"]), self.batch)
+        self.assertEqual(request["body"]["prompt_cache_key"], job["prompt_cache_key"])
+        self.assertEqual(request["body"]["prompt_cache_options"]["mode"], "explicit")
+        self.assertEqual(
+            request["body"]["input"][0]["content"][0]["prompt_cache_breakpoint"],
+            {"mode": "explicit"},
+        )
+        self.assertEqual(request["body"]["reasoning"], {"effort": "none"})
         self.assertTrue(request["body"]["text"]["format"]["strict"])
         with self.assertRaisesRegex(ValueError, "already exists"):
             prepare(self.source, self.run_dir)
@@ -85,6 +92,15 @@ class ScreeningRunnerTests(unittest.TestCase):
                         "status_code": 200,
                         "body": {
                             "status": "completed",
+                            "usage": {
+                                "input_tokens": 5000,
+                                "input_tokens_details": {
+                                    "cached_tokens": 1024,
+                                    "cache_write_tokens": 0,
+                                },
+                                "output_tokens": 2000,
+                                "output_tokens_details": {"reasoning_tokens": 0},
+                            },
                             "output": [
                                 {
                                     "type": "message",
@@ -115,5 +131,9 @@ class ScreeningRunnerTests(unittest.TestCase):
             status(self.run_dir, api_key="test", session=session)["status"], "completed"
         )
         report = fetch(self.source, self.run_dir, api_key="test", session=session)
-        self.assertEqual(report, {"expected": 1, "valid": 1, "failed": 0, "missing": 0})
+        self.assertEqual(report["expected"], 1)
+        self.assertEqual(report["valid"], 1)
+        self.assertEqual(report["cached_input_tokens"], 1024)
+        self.assertEqual(report["input_tokens"], 5000)
+        self.assertEqual(report["output_tokens"], 2000)
         self.assertEqual(len((self.run_dir / "predictions.jsonl").read_text().splitlines()), 1)

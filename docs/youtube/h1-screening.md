@@ -54,6 +54,16 @@ request again, so deduplicate by `batch_id` if combining outputs. `submit` does
 not create a second job after recording a Batch ID. `fetch` downloads provider
 output and error files, validates every returned comment ID and writes only
 validated predictions. Missing or failed requests are counted in the report.
+Each prediction retains its API `usage`, and `validation_report.json` sums input,
+output, cached-input, cache-write and reasoning tokens across valid responses.
+
+The request uses a stable `prompt_cache_key` based on the instruction hash and an
+explicit cache breakpoint after the fixed instruction. Comment text comes after
+that breakpoint. GPT-6 Luna routes cache automatically; the key is useful for
+accounting, not a guarantee of hits. The current fixed instruction is shorter
+than the 1024-token minimum cacheable prefix, so `cached_input_tokens` may be
+zero. Keep the instruction useful and stable; do not pad it just to get hits.
+The response usage fields, rather than the key, show actual reuse.
 
 OpenAI's Batch API itself requires JSONL, with one API request per line and a
 unique `custom_id`. The runner converts the project's comment-group JSONL into
