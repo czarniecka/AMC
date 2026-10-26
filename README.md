@@ -27,6 +27,7 @@ uv run --locked python scripts/youtube/discover_videos.py
 uv run --locked python scripts/youtube/collect_comments.py
 uv run --locked python scripts/youtube/collect_random_sample.py status
 uv run --locked python scripts/youtube/prepare_screening.py --database data/youtube/work_sample_v2/sample.sqlite3 --output data/youtube/screening/work_v1
+uv run --locked python scripts/youtube/run_screening.py --input-dir data/youtube/screening/work_v1 --output data/youtube/screening/work_v1/luna_predictions.jsonl --limit-batches 1
 uv run --locked python scripts/classify_comments.py --limit 50
 uv run --locked python scripts/run_web.py
 ```

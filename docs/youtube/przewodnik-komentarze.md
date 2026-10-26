@@ -36,9 +36,9 @@ wyszukiwanie i wybór filmów AI → pilot w CSV ──────────�
                                            kontrola ludzka → BERT → analiza H1
 ```
 
-W tym repozytorium działają pobieranie komentarzy i przygotowanie paczek JSONL.
-Automatyczne wysyłanie paczek do Luny/Sol/Opus, sprawdzanie ich odpowiedzi,
-dobór 5–10 tys. wpisów i trenowanie BERT-a nie są jeszcze zaimplementowane.
+W tym repozytorium działają pobieranie komentarzy, przygotowanie paczek JSONL
+oraz ich wysyłanie do GPT-6 Luna z kontrolą odpowiedzi. Dobór 5–10 tys. wpisów,
+ocena większym modelem i trenowanie BERT-a nie są jeszcze zaimplementowane.
 Dotychczasowy klasyfikator Ollama używa innego zadania (`relevance` i `impact`);
 nie należy traktować jego wyników jako gotowych etykiet H1.
 
@@ -208,8 +208,24 @@ Przykład pokazuje schemat, a nie pełną odpowiedź dla rzeczywistej paczki.
 Oba pola etykiety dopuszczają `yes`, `no` i `unclear`. Wynik trzeba sprawdzić:
 zgodność `batch_id`, dokładnie jeden wynik na każde wejściowe `id`, dozwolone
 wartości i zasadę `h1_related=no` → `job_security_concern=no`. Odpowiedzi
-niekompletne lub błędne trzeba ponowić. Obecnie nie ma skryptu, który automatycznie
-wyśle paczki do modelu lub wykona tę walidację.
+niekompletne lub błędne trzeba ponowić. Walidację i wysyłanie wykonuje
+`scripts/youtube/run_screening.py`.
+
+Ustaw prywatnie `OPENAI_API_KEY` w `.env` lub środowisku. Najpierw wykonaj jedną
+paczkę i obejrzyj wynik:
+
+```bash
+uv run --locked python scripts/youtube/run_screening.py \
+  --input-dir data/youtube/screening/work_v1 \
+  --output data/youtube/screening/work_v1/luna_predictions.jsonl \
+  --limit-batches 1
+```
+
+Następnie powtórz bez `--limit-batches 1`, by skrypt pominął zapisaną paczkę i
+ocenił pozostałe. Każda paczka to jedno żądanie do Responses API. Wysłanie
+komentarzy do zewnętrznego API przekazuje ich treść usługodawcy i może kosztować;
+sprawdź próbny wynik przed pełnym przebiegiem. Plik `batches.jsonl` ma format
+wewnętrzny projektu, a nie format wejściowy OpenAI Batch API.
 
 `manifest.csv` pozwala połączyć krótkie ID z `comment_id`, `video_id`, datą
 publikacji, okresem `pre`/`post` i hashem tekstu. Tych metadanych nie ma w
