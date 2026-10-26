@@ -44,19 +44,27 @@ uv run --locked python scripts/hn/collect_hiring.py
 uv run --locked python scripts/wykop/collect_entries.py
 uv run --locked python scripts/wykop/collect_comments.py
 uv run --locked python scripts/wykop/classify_entries.py
+uv run --locked python scripts/wykop/export_ai_work.py
+uv run --locked python scripts/wykop/classify_stage2.py
 ```
 
 Collectors append to their CSV and resume when rerun. `collect_full.py` writes KPRM ads in
 the RepOD format (doi:10.18150/Q23MGT) to `data/jobs/`, next to the 2018-2023 release.
 Hacker News uses only the official APIs; Wykop uses API v3 and stores `author_hash`
 (salted SHA-256) instead of usernames. Wykop tags, start date and the comment rule are in
-`config/wykop/collection.json`. `classify_entries.py` labels texts with local Ollama
-(`OLLAMA_MODEL`) using the H1 instruction in `amc/classification/job_concern.py`: `ai`,
-`work` and `stance` (threat, reassurance, opportunity, mixed, none). Set
+`config/wykop/collection.json`. Labelling has two stages (guidelines in `docs/wykop/`).
+Stage 1, `classify_entries.py`, labels `ai` and `work` with local Ollama (`OLLAMA_MODEL`,
+instruction in `amc/classification/job_concern.py`) into `data/wykop/wykop_stage1.csv`. Set
 `OLLAMA_NUM_PARALLEL` for Ollama to the `--workers` value (Compose sets 2; each slot adds
 about 0.6 GB of GPU memory for qwen3:8b). In Docker:
-`docker compose -f compose.yaml -f compose.gpu.yaml run --rm classifier scripts/wykop/classify_entries.py`. Credentials: `WYKOP_KEY`,
-`WYKOP_SECRET`, `WYKOP_SALT` in `.env`. The notebook in `notebooks/` reads the RepOD data.
+`docker compose -f compose.yaml -f compose.gpu.yaml run --rm classifier scripts/wykop/classify_entries.py`.
+`export_ai_work.py` writes the texts with `ai` and `work` "yes" to `wykop_ai_work.csv`.
+Stage 2, `classify_stage2.py`, labels them with `stance`, `attitude`, `threat_type`,
+`competence_claim` and `sector` through a CLARIN-PL hosted model (`CLARIN_TOKEN`,
+`CLARIN_MODEL`, default `deepseek-v4-flash-0731`; instruction in
+`amc/classification/job_concern_details.py`) into `wykop_stage2.csv`. Credentials:
+`WYKOP_KEY`, `WYKOP_SECRET`, `WYKOP_SALT` in `.env`. The notebook in `notebooks/` reads the
+RepOD data.
 
 ## Documentation
 

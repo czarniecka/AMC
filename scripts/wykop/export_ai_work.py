@@ -11,13 +11,13 @@ from amc.csv_files import read_rows  # noqa: E402
 from amc.wykop import classification, records  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
-LABELS = ("ai", "work", "stance", "model", "prompt_hash")
+LABELS = ("ai", "work", "model", "prompt_hash")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--entries", type=Path, default=ROOT / "data/wykop/wykop_entries.csv")
-    parser.add_argument("--labels", type=Path, default=ROOT / "data/wykop/wykop_classified.csv")
+    parser.add_argument("--labels", type=Path, default=ROOT / "data/wykop/wykop_stage1.csv")
     parser.add_argument("--output", type=Path, default=ROOT / "data/wykop/wykop_ai_work.csv")
     parser.add_argument("--model", default="qwen3:8b")
     options = parser.parse_args(argv)

@@ -1,11 +1,14 @@
-"""Classify entries and comments with the H1 labels (`job_concern`), in parallel requests.
+"""Classify entries and comments in parallel requests, for stage 1 or stage 2 labels.
 
-`type` and `entry_id` are the key. Rows are appended as answers arrive, because the
-collection is too large to rewrite the file after each prediction. Reruns skip rows with the
-same key, text hash, model and prompt hash. Invalid answers are not saved and are retried on
-the next run.
+Stage 1 (`job_concern`: ai, work) writes `wykop_stage1.csv`; the older
+`wykop_classified.csv` also has a `stance` column and is kept only as history. Stage 2
+(`job_concern_details`) writes `STAGE2_COLUMNS` to `wykop_stage2.csv`. `type` and
+`entry_id` are the key. Rows are appended as answers arrive, because the collection is too
+large to rewrite the file after each prediction. Reruns skip rows with the same key, text
+hash, model and prompt hash. Invalid answers are not saved and are retried on the next run.
 """
 
+import csv
 import hashlib
 import random
 import re
@@ -15,6 +18,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
+from amc.classification import job_concern_details
 from amc.classification.job_concern import PROMPT_HASH, OllamaClient
 from amc.csv_files import append_rows, read_rows
 from amc.wykop import records
@@ -25,11 +29,20 @@ COLUMNS = (
     "text_hash",
     "ai",
     "work",
-    "stance",
     "model",
     "prompt_hash",
     "classified_at",
 )
+STAGE2_COLUMNS = (
+    "type",
+    "entry_id",
+    "text_hash",
+    *job_concern_details.LABELS,
+    "model",
+    "prompt_hash",
+    "classified_at",
+)
+SOURCE_COLUMNS = {"type", "entry_id", "text"}
 SEED = 20261013
 LABELED_COLUMNS = (
     "type",
@@ -40,7 +53,6 @@ LABELED_COLUMNS = (
     "text",
     "ai",
     "work",
-    "stance",
 )
 
 
@@ -60,12 +72,24 @@ def text_hash(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
 
 
-def completed(output: Path, model: str) -> set[tuple[str, str, str]]:
+def completed(
+    output: Path, model: str, columns: tuple[str, ...] = COLUMNS, prompt_hash: str = PROMPT_HASH
+) -> set[tuple[str, str, str]]:
     return {
         (row["type"], row["entry_id"], row["text_hash"])
-        for row in read_rows(output, COLUMNS)
-        if row["model"] == model and row["prompt_hash"] == PROMPT_HASH
+        for row in read_rows(output, columns)
+        if row["model"] == model and row["prompt_hash"] == prompt_hash
     }
+
+
+def source_rows(path: Path) -> list[dict[str, str]]:
+    """Texts to classify: any CSV with type, entry_id and text, such as wykop_entries.csv or
+    an export like wykop_ai_work.csv."""
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        reader = csv.DictReader(stream)
+        if not SOURCE_COLUMNS <= set(reader.fieldnames or ()):
+            raise ValueError(f"{path.name} needs the columns {', '.join(sorted(SOURCE_COLUMNS))}")
+        return list(reader)
 
 
 def run(
@@ -74,6 +98,8 @@ def run(
     output: Path,
     model: str,
     *,
+    columns: tuple[str, ...] = COLUMNS,
+    prompt_hash: str = PROMPT_HASH,
     workers: int = 2,
     limit: int | None = None,
     seed: int = SEED,
@@ -82,9 +108,9 @@ def run(
     """Classify pending texts in a reproducible random order; returns new predictions."""
     if source.resolve() == output.resolve():
         raise ValueError("Classification output must be separate from the source.")
-    done = completed(output, model)
+    done = completed(output, model, columns, prompt_hash)
     # `text` becomes what the model reads, so `text_hash` changes when the cleaning does.
-    rows = [{**row, "text": model_text(row["text"])} for row in read_rows(source, records.COLUMNS)]
+    rows = [{**row, "text": model_text(row["text"])} for row in source_rows(source)]
     rows = [row for row in rows if row["text"]]
     random.Random(seed).shuffle(rows)
     todo = [
@@ -105,12 +131,12 @@ def run(
             "text_hash": text_hash(row["text"]),
             **labels,
             "model": model,
-            "prompt_hash": PROMPT_HASH,
+            "prompt_hash": prompt_hash,
             "classified_at": datetime.now(timezone.utc).isoformat(),
         }
 
     pool = ThreadPoolExecutor(workers)
-    with append_rows(output, COLUMNS) as (stream, writer):
+    with append_rows(output, columns) as (stream, writer):
         try:
             jobs = [pool.submit(task, row) for row in todo]
             for n, job in enumerate(as_completed(jobs), 1):

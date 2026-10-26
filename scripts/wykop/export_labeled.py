@@ -1,4 +1,4 @@
-"""Write Wykop texts with their ai, work and stance labels to one CSV."""
+"""Write Wykop texts with their stage 1 ai and work labels to one CSV."""
 
 import argparse
 import csv
@@ -18,7 +18,7 @@ def main(argv: list[str] | None = None) -> int:
     load_dotenv(ROOT / ".env", override=False)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=ROOT / "data/wykop/wykop_entries.csv")
-    parser.add_argument("--labels", type=Path, default=ROOT / "data/wykop/wykop_classified.csv")
+    parser.add_argument("--labels", type=Path, default=ROOT / "data/wykop/wykop_stage1.csv")
     parser.add_argument("--output", type=Path, default=ROOT / "data/wykop/wykop_labeled.csv")
     parser.add_argument("--model", default=os.getenv("OLLAMA_MODEL", "qwen3:8b"))
     options = parser.parse_args(argv)

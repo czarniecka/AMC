@@ -1,7 +1,9 @@
 """Draw a seeded sample of labeled Wykop texts: half with ai and work "yes", half without.
 
 The sample is saved as an Excel workbook, so columns open correctly whatever the regional
-list separator is. Requires `openpyxl`.
+list separator is. Requires `openpyxl`. `--exclude` leaves out texts that were already
+annotated. With `--blank` the annotators' sheet has empty ai and work columns, and the
+model labels, which define the two halves, go to a separate `<output>_key.csv`.
 """
 
 import argparse
@@ -50,12 +52,32 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=ROOT / "data/wykop/wykop_sample.xlsx")
     parser.add_argument("--count", type=int, default=150, help="total texts (split evenly)")
     parser.add_argument("--seed", type=int, default=2026)
+    parser.add_argument(
+        "--exclude",
+        type=Path,
+        action="append",
+        default=[],
+        help="CSV with type and entry_id columns of texts to leave out (repeatable)",
+    )
+    parser.add_argument(
+        "--blank", action="store_true", help="empty ai and work for blind annotation"
+    )
     options = parser.parse_args(argv)
-    if options.output.exists():
-        print(f"{options.output} already exists; it may hold labels, so it is not overwritten.")
-        return 1
+    key = options.output.with_name(options.output.stem + "_key.csv")
+    for path in (options.output, key) if options.blank else (options.output,):
+        if path.exists():
+            print(f"{path} already exists; it may hold labels, so it is not overwritten.")
+            return 1
     csv.field_size_limit(2**31 - 1)
-    rows = read_rows(options.input, LABELED_COLUMNS)
+    excluded = set()
+    for path in options.exclude:
+        with path.open(encoding="utf-8-sig", newline="") as stream:
+            excluded |= {(row["type"], row["entry_id"]) for row in csv.DictReader(stream)}
+    rows = [
+        row
+        for row in read_rows(options.input, LABELED_COLUMNS)
+        if (row["type"], row["entry_id"]) not in excluded
+    ]
     both = [row for row in rows if row["ai"] == "yes" and row["work"] == "yes"]
     rest = [row for row in rows if not (row["ai"] == "yes" and row["work"] == "yes")]
     half = options.count // 2
@@ -66,11 +88,19 @@ def main(argv: list[str] | None = None) -> int:
     chosen = rng.sample(both, half) + rng.sample(rest, options.count - half)
     rng.shuffle(chosen)
     options.output.parent.mkdir(parents=True, exist_ok=True)
+    if options.blank:
+        with key.open("w", encoding="utf-8-sig", newline="") as stream:
+            writer = csv.DictWriter(stream, fieldnames=("type", "entry_id", "ai", "work"))
+            writer.writeheader()
+            writer.writerows({name: row[name] for name in writer.fieldnames} for row in chosen)
+        chosen = [{**row, "ai": "", "work": ""} for row in chosen]
     write_xlsx(options.output, chosen)
     print(
         f"Wrote {len(chosen)} texts to {options.output}: {half} of {len(both)} with ai and "
-        f"work, {options.count - half} of {len(rest)} without."
+        f"work, {options.count - half} of {len(rest)} without; {len(excluded)} excluded."
     )
+    if options.blank:
+        print(f"Model labels for the sample are in {key}.")
     return 0
 
 

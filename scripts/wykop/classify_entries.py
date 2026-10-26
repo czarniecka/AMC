@@ -1,4 +1,4 @@
-"""Classify Wykop entries and comments with the H1 labels, using a local Ollama model."""
+"""Classify Wykop entries and comments with the stage 1 labels (ai, work), using local Ollama."""
 
 import argparse
 import os
@@ -19,7 +19,7 @@ def main(argv: list[str] | None = None) -> int:
     load_dotenv(ROOT / ".env", override=False)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=ROOT / "data/wykop/wykop_entries.csv")
-    parser.add_argument("--output", type=Path, default=ROOT / "data/wykop/wykop_classified.csv")
+    parser.add_argument("--output", type=Path, default=ROOT / "data/wykop/wykop_stage1.csv")
     parser.add_argument("--model", default=os.getenv("OLLAMA_MODEL", "qwen3:8b"))
     parser.add_argument(
         "--workers", type=int, default=2, help="parallel requests (match OLLAMA_NUM_PARALLEL)"
