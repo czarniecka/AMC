@@ -13,6 +13,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from amc.youtube.api_client import CollectionError
+from amc.youtube.comment_extractor import MAX_COMMENTS_PER_VIDEO
 from amc.youtube.exporter import COMMENT_COLUMNS, TRANSCRIPT_COLUMNS, VIDEO_COLUMNS, write_csv
 from amc.youtube.models import Comment, Transcript, VideoMetadata
 
@@ -143,7 +144,7 @@ class CollectionStore:
                     row["video_id"] not in self._videos
                     or row["video_id"] in self._state
                     or row["completed"] not in {"0", "1"}
-                    or not 0 <= int(row["sample_limit"]) <= 500
+                    or not 0 <= int(row["sample_limit"]) <= MAX_COMMENTS_PER_VIDEO
                     or row["comment_order"] not in {"time", "relevance"}
                 ):
                     raise ValueError("Invalid collection state")
@@ -215,12 +216,21 @@ class CollectionStore:
             write_csv(self.output_dir / "yt_videos_metadata.csv", VIDEO_COLUMNS, self.videos())
 
     def save_comment(self, comment: Comment) -> bool:
-        key = comment_fingerprint(comment)
-        if key in self._comments:
-            return False
-        self._comments[key] = comment
-        write_csv(self.output_dir / "yt_comments_anonymized.csv", COMMENT_COLUMNS, self.comments())
-        return True
+        return bool(self.save_comments((comment,)))
+
+    def save_comments(self, comments: Iterable[Comment]) -> list[Comment]:
+        """Persist one page at a time while preserving duplicate detection."""
+        added = []
+        for comment in comments:
+            key = comment_fingerprint(comment)
+            if key not in self._comments:
+                self._comments[key] = comment
+                added.append(comment)
+        if added:
+            write_csv(
+                self.output_dir / "yt_comments_anonymized.csv", COMMENT_COLUMNS, self.comments()
+            )
+        return added
 
     def comments_completed(self, video_id: str) -> bool:
         return bool(video_id in self._state and self._state[video_id].completed)

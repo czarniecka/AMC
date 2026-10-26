@@ -21,7 +21,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--published-after", default="2023-01-01T00:00:00Z")
     parser.add_argument("--candidates-per-query", type=int, default=50)
     parser.add_argument("--max-videos", type=int, default=20)
-    parser.add_argument("--max-comments", type=int, default=500)
+    parser.add_argument("--max-comments", type=int, default=1000)
     parser.add_argument(
         "--video-id",
         action="append",

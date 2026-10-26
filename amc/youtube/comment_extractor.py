@@ -10,6 +10,7 @@ from amc.youtube.models import Comment
 COMMENT_FIELDS = (
     "nextPageToken,items(snippet/topLevelComment/snippet(textDisplay,likeCount,publishedAt))"
 )
+MAX_COMMENTS_PER_VIDEO = 5000
 
 
 def clean_text(text: str) -> str:
@@ -21,12 +22,12 @@ def extract_comments(
     client: YouTubeAPIClient,
     video_id: str,
     *,
-    max_comments: int = 500,
+    max_comments: int = 1000,
     order: str = "relevance",
 ) -> Iterator[Comment]:
-    """Yield at most 500 top-level comments, preserving completed pages on failure."""
-    if not 0 <= max_comments <= 500:
-        raise ValueError("max_comments must be between 0 and 500")
+    """Yield a bounded set of top-level comments, preserving pages on failure."""
+    if not 0 <= max_comments <= MAX_COMMENTS_PER_VIDEO:
+        raise ValueError(f"max_comments must be between 0 and {MAX_COMMENTS_PER_VIDEO}")
     if order not in {"relevance", "time"}:
         raise ValueError("Comment order must be relevance or time")
     count = 0

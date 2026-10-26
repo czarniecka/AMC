@@ -17,7 +17,7 @@ uv run --locked python -m amc --max-videos 5 --max-comments 100
 Never share `.env`. The program does not print the key, response bodies,
 or HTTP request URLs. The default run searches six phrases (three Polish and three
 English), examines up to 50 candidates per phrase, selects up to 20 videos, and
-collects up to 500 top-level comments per selected video.
+collects up to 1000 top-level comments per selected video by default.
 
 Captions are optional and disabled by default:
 
@@ -33,12 +33,16 @@ uv run --locked python -m amc --query-pl "sztuczna inteligencja rynek pracy" --q
 ```
 
 Other options include `--published-after`, `--candidates-per-query` (1–500),
-`--max-videos` (1–500), `--max-comments` (0–500), `--max-api-requests`, and
+`--max-videos` (1–500), `--max-comments` (0–5000), `--max-api-requests`, and
 `--output-dir`. `--comment-order time` selects API chronological ordering instead
 of relevance; neither is random sampling or a global ranking by likes.
 `--refresh-comments` explicitly revisits completed samples, for example after
 increasing the limit or deliberately changing the ordering. Without that flag,
 a completed sample is skipped even if the configured limit changes.
+The reviewed selection in `config/youtube/approved_videos.json` now requests 1000
+comments per video. To extend already completed samples, run
+`uv run --locked python scripts/youtube/collect_comments.py --refresh-comments --max-api-requests 500`.
+Existing comments retain their IDs; newly reached pages add more comments.
 Run `uv run --locked python -m amc --help` for the complete interface.
 
 ## Discover candidates and collect approved videos
@@ -138,8 +142,10 @@ the implementation stops on blocking and does not rotate proxies or identities.
 
 ## Exports and recovery
 
-All three exports use `utf-8-sig`, have column headers even with no records, and
-are excluded from Git. CSV empty cells represent `None`.
+All three exports use `utf-8-sig` and have column headers even with no records.
+CSV empty cells represent `None`. Check repository status before sharing or committing
+data: the current repository tracks some collection CSVs despite the general
+`data/*` ignore rule.
 
 | File | Columns |
 | --- | --- |
@@ -165,8 +171,8 @@ requests use a separate interface and are not included in this counter.
 Completed comment pages and completed video metadata are exported after a handled
 API stop. If discovery stops early, ranking applies to only the metadata obtained
 so far, and no further comment requests are made.
-Each new comment is saved to the authoritative comment CSV immediately. Keep all
-four CSV files together, including `yt_collection_state.csv`, which tracks completed
+New comments are saved to the authoritative comment CSV in batches of up to 100.
+Keep all four CSV files together, including `yt_collection_state.csv`, which tracks completed
 bounded samples. Interrupted samples retry pagination; stored duplicates retain
 their UUID and first observed like count. Metadata retains its first observation.
 Missing transcripts do not erase existing captions. Updates are atomic per file,
