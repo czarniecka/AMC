@@ -193,7 +193,9 @@ class SampleStore:
                 ),
             )
 
-    def save_videos(self, search, items: list[dict], min_views: int) -> None:
+    def save_videos(
+        self, search, items: list[dict], min_views: int, min_comments: int = 1
+    ) -> None:
         period = search["period"]
         lower, upper = PERIODS[period]
         ids = json.loads(search["selected_ids_json"])
@@ -213,7 +215,7 @@ class SampleStore:
                     or not lower <= published < upper
                     or views < min_views
                     or not language.lower().startswith("en")
-                    or int(stats.get("commentCount", 0)) < 1
+                    or int(stats.get("commentCount", 0)) < min_comments
                 ):
                     continue
                 self.db.execute(
@@ -306,24 +308,33 @@ def collect(
     target: int,
     seed: int,
     min_views: int = 10000,
+    min_comments: int = 50,
     min_chars: int = 20,
     videos_per_query: int = 10,
     progress=None,
 ) -> dict[str, int]:
-    if target < 1 or seed < 0 or min_views < 0 or min_chars < 1 or not 1 <= videos_per_query <= 50:
+    if (
+        target < 1
+        or seed < 0
+        or min_views < 0
+        or min_comments < 1
+        or min_chars < 1
+        or not 1 <= videos_per_query <= 50
+    ):
         raise ValueError("Invalid sampling limits or seed")
     words = vocabulary(words_path)
     config = {
         "seed": seed,
         "vocabulary_sha256": hashlib.sha256(words_path.read_bytes()).hexdigest(),
         "min_views": min_views,
+        "min_comments": min_comments,
         "min_chars": min_chars,
         "videos_per_query": videos_per_query,
         "periods": PERIODS,
         "search_order": "relevance",
         "comment_order": "time",
         "language_filter": "langdetect en>=0.90",
-        "version": 7,
+        "version": 8,
     }
     quota = {"pre_chatgpt": (target + 1) // 2, "post_chatgpt": target // 2}
     with locked(database):
@@ -376,7 +387,7 @@ def collect(
                                 "fields": VIDEO_FIELDS,
                             },
                         ).get("items", [])
-                    store.save_videos(search, items, min_views)
+                    store.save_videos(search, items, min_views, min_comments)
                     if progress:
                         progress(
                             f"videos period={period} checked={len(items)} "

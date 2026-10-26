@@ -51,6 +51,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--target", type=int, default=10000, help="minimum collected comments")
     parser.add_argument("--seed", type=int, default=20261025)
     parser.add_argument("--min-views", type=int, default=10000)
+    parser.add_argument(
+        "--min-comments", type=int, default=50, help="skip videos with fewer comments"
+    )
     parser.add_argument("--min-chars", type=int, default=20)
     parser.add_argument("--videos-per-query", type=int, default=10)
     parser.add_argument("--max-api-requests", type=int, default=80)
@@ -91,6 +94,7 @@ def main(argv: list[str] | None = None) -> int:
             target=args.target,
             seed=args.seed,
             min_views=args.min_views,
+            min_comments=args.min_comments,
             min_chars=args.min_chars,
             videos_per_query=args.videos_per_query,
             progress=lambda message: print(message, flush=True),

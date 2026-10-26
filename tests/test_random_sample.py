@@ -120,8 +120,8 @@ class RandomSampleTests(unittest.TestCase):
     def test_work_queries_allow_phrases_without_ai_terms(self):
         path = Path(__file__).resolve().parents[1] / "config/youtube/work_queries.txt"
         queries = vocabulary(path)
-        self.assertIn("job search", queries)
-        self.assertIn("future of work", queries)
+        self.assertIn("entry level jobs", queries)
+        self.assertIn("will robots take our jobs", queries)
         self.assertTrue(all("ai" not in query.split() for query in queries))
 
     def test_resume_after_page_and_raise_target_without_duplicates(self):
