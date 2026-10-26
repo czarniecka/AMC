@@ -23,6 +23,9 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int, default=100)
     parser.add_argument("--max-batch-chars", type=int, default=30000)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--per-period", type=int, help="Select exactly this many pre and post comments"
+    )
     args = parser.parse_args()
     try:
         result = prepare(
@@ -31,6 +34,7 @@ def main() -> int:
             batch_size=args.batch_size,
             max_batch_chars=args.max_batch_chars,
             seed=args.seed,
+            per_period=args.per_period,
         )
     except (OSError, ValueError, sqlite3.Error) as error:
         parser.exit(2, f"{error}\n")

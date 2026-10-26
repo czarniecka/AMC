@@ -10,7 +10,7 @@ from amc.youtube.api_client import CollectionError, YouTubeAPIClient  # noqa: E4
 from amc.youtube.random_sample import collect, export_label_studio  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_DB = ROOT / "data/youtube/work_sample_v2/sample.sqlite3"
+DEFAULT_DB = ROOT / "data/youtube/work_sample_v3/sample.sqlite3"
 DEFAULT_WORDS = ROOT / "config/youtube/work_queries.txt"
 
 
@@ -58,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--videos-per-query", type=int, default=10)
     parser.add_argument("--max-api-requests", type=int, default=80)
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "data/youtube/work_sample_v2/label_studio"
+        "--output", type=Path, default=ROOT / "data/youtube/work_sample_v3/label_studio"
     )
     parser.add_argument("--export-batch-size", type=int, default=1000)
     parser.add_argument(

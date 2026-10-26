@@ -5,18 +5,24 @@ in the face of AI grows after the November 2022 ChatGPT release. The unit is a
 comment, not a video. The preparation script does not call a model; the separate
 runner below does. H2 concerns job advertisements and is handled separately.
 
-Use the pre/post work-topic sample on this branch for the H1 comparison:
+Collect the current pre/post work-topic sample, then prepare exactly 15000
+comments from each period:
 
 ```text
-uv run --locked python scripts/youtube/prepare_screening.py --database data/youtube/work_sample_v2/sample.sqlite3 --output data/youtube/screening/work_v1
+uv run --locked python scripts/youtube/collect_random_sample.py collect --target 30000 --seed 20261025
+uv run --locked python scripts/youtube/collect_random_sample.py status
+uv run --locked python scripts/youtube/prepare_screening.py --database data/youtube/work_sample_v3/sample.sqlite3 --per-period 15000 --output data/youtube/screening/work_v3_30k
 ```
 
 The older reviewed-video pilot can still be prepared from its CSV by omitting
 `--database` and choosing another output directory. Keep these two collection
 frames separate; their comments can overlap and their selection rules differ.
-The existing `work_sample_v2` database remains usable for screening. A new
-collection with the branch's updated query list and minimum-comment rule requires
-a new database path, such as `data/youtube/work_sample_v3/sample.sqlite3`.
+The existing `work_sample_v2` database is an archive collected with an older
+query list and protocol. The default collector database is now
+`data/youtube/work_sample_v3/sample.sqlite3`. Repeat `collect` if an API request
+limit stops the run before both periods reach 15000 comments. The collector may
+overshoot a quota by one API page; selection is seeded and recorded in the
+manifest. `--per-period` fails if either period is short.
 
 The output directory must be new. `batches.jsonl` contains one JSON object per
 line, with up to 100 comments, each carrying a short `id` and its text. Batches
@@ -40,10 +46,10 @@ Start with a one-request pilot. The first command only prepares the real OpenAI
 Batch API request file; `submit` uploads it and creates an asynchronous job:
 
 ```text
-uv run --locked python scripts/youtube/run_screening.py prepare --input-dir data/youtube/screening/work_v1 --run-dir data/youtube/screening/work_v1/luna_pilot --limit-batches 1
-uv run --locked python scripts/youtube/run_screening.py submit --run-dir data/youtube/screening/work_v1/luna_pilot
-uv run --locked python scripts/youtube/run_screening.py status --run-dir data/youtube/screening/work_v1/luna_pilot
-uv run --locked python scripts/youtube/run_screening.py fetch --input-dir data/youtube/screening/work_v1 --run-dir data/youtube/screening/work_v1/luna_pilot
+uv run --locked python scripts/youtube/run_screening.py prepare --input-dir data/youtube/screening/work_v3_30k --run-dir data/youtube/screening/work_v3_30k/luna_pilot --limit-batches 1
+uv run --locked python scripts/youtube/run_screening.py submit --run-dir data/youtube/screening/work_v3_30k/luna_pilot
+uv run --locked python scripts/youtube/run_screening.py status --run-dir data/youtube/screening/work_v3_30k/luna_pilot
+uv run --locked python scripts/youtube/run_screening.py fetch --input-dir data/youtube/screening/work_v3_30k --run-dir data/youtube/screening/work_v3_30k/luna_pilot
 ```
 
 Run `status` again until the job is complete, then run `fetch`. Inspect
@@ -70,7 +76,7 @@ OpenAI's Batch API itself requires JSONL, with one API request per line and a
 unique `custom_id`. The runner converts the project's comment-group JSONL into
 that required format (`requests.jsonl`), uploads it through the Files API and
 submits it to the `/v1/responses` Batch endpoint. Each API request still carries
-up to 100 comments, so the current 283 prepared groups form 283 Batch requests.
+up to 100 comments, so a 30000-comment sample needs at least 300 Batch requests.
 
 `manifest.csv` maps IDs back to source `video_id`, `comment_id`, publication time,
 pre/post period and text hash. The model input contains only comment text and a

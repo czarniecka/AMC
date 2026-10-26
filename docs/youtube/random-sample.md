@@ -29,18 +29,18 @@ comment on a 2021 video is post-launch commentary.
 ## Commands
 
 ```text
-uv run --locked python scripts/youtube/collect_random_sample.py collect --target 5000 --seed 20261025
+uv run --locked python scripts/youtube/collect_random_sample.py collect --target 30000 --seed 20261025
 uv run --locked python scripts/youtube/collect_random_sample.py status
-uv run --locked python scripts/youtube/collect_random_sample.py export --export-count 500 --seed 20261025 --output data/youtube/work_sample_v2/label_studio_v1
+uv run --locked python scripts/youtube/collect_random_sample.py export --export-count 500 --seed 20261025 --output data/youtube/work_sample_v3/label_studio_v1
 ```
 
 The same database resumes after interruption or after increasing `--target`. Other
 sampling settings and the SHA-256 of the vocabulary file are frozen on the first
-run; changing them requires a new database. The current query list and the
-minimum-comment rule need a new database, for example
-`--database data/youtube/work_sample_v3/sample.sqlite3`; `work_sample_v2` was
-collected with the old phrases and filters. The default database is
-`data/youtube/work_sample_v2/sample.sqlite3`; the previous broad sample remains
+run; changing them requires a new database. The default database is
+`data/youtube/work_sample_v3/sample.sqlite3`, using the revised work queries and
+minimum 50 comments per video. The older `work_sample_v2` database uses a
+different query list and protocol; keep it separate and do not resume it with
+current defaults. The previous broad sample remains
 at `data/youtube/random_sample/sample.sqlite3`. The first work sample, if
 collected, remains at `data/youtube/work_sample/sample.sqlite3`. Those databases
 used different filters and must not be mixed. Search visits each query/quarter
@@ -93,7 +93,7 @@ docker run --rm --user "$(id -u):0" -p 8080:8080 -v "$PWD/data/label_studio:/lab
 Open `http://localhost:8080`, create a local account, then **Create Project**.
 Name it, open **Labeling Setup**, choose **Code**, and paste the complete contents
 of `config/youtube/label_studio.xml`. Save the project. In **Data Import**, upload
-`data/youtube/work_sample_v2/label_studio_v1/tasks_0000.json` (or the `tasks_*.json`
+`data/youtube/work_sample_v3/label_studio_v1/tasks_0000.json` (or the `tasks_*.json`
 files in whichever directory you exported). Then open a task and label it.
 The JSON key `data.text` matches the XML's `$text` field. Keep the
 `data/label_studio` directory: it contains Label Studio's account, project, and
@@ -102,7 +102,7 @@ annotations. This is distinct from the collector's `sample.sqlite3`.
 To export the current collector database before import, run:
 
 ```bash
-uv run --locked python scripts/youtube/collect_random_sample.py export --export-count 500 --seed 20261025 --output data/youtube/work_sample_v2/label_studio_v2
+uv run --locked python scripts/youtube/collect_random_sample.py export --export-count 500 --seed 20261025 --output data/youtube/work_sample_v3/label_studio_v2
 ```
 
 The output directory must be new or empty. Import only one snapshot into a given

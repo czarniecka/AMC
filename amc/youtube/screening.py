@@ -63,12 +63,15 @@ def prepare(
     batch_size: int = 100,
     max_batch_chars: int = 30000,
     seed: int = 42,
+    per_period: int | None = None,
 ) -> dict[str, int]:
     """Write bounded JSONL batches and a source identity manifest; never overwrite."""
     if not 1 <= batch_size <= 100:
         raise ValueError("batch_size must be between 1 and 100")
     if max_batch_chars < 1000:
         raise ValueError("max_batch_chars must be at least 1000")
+    if per_period is not None and per_period < 1:
+        raise ValueError("per_period must be positive")
     if output_dir.exists():
         raise ValueError("Output directory already exists; choose a new versioned path")
     rows = _source_rows(input_path)
@@ -89,7 +92,21 @@ def prepare(
         selected.append((row, value, _timestamp(row["published_at"])))
     if not selected:
         raise ValueError("No non-empty comments to prepare")
-    random.Random(seed).shuffle(selected)
+    nonempty_count = len(selected)
+    randomizer = random.Random(seed)
+    if per_period is not None:
+        grouped = {
+            "pre": [item for item in selected if item[2] < RELEASE],
+            "post": [item for item in selected if item[2] >= RELEASE],
+        }
+        if any(len(grouped[period]) < per_period for period in grouped):
+            raise ValueError(
+                "Not enough comments in both periods for the requested per_period sample"
+            )
+        selected = randomizer.sample(grouped["pre"], per_period) + randomizer.sample(
+            grouped["post"], per_period
+        )
+    randomizer.shuffle(selected)
     source_hash = hashlib.sha256(input_path.read_bytes()).hexdigest()
     batches = []
     manifest = []
@@ -137,7 +154,9 @@ def prepare(
         "max_batch_chars": max_batch_chars,
         "source_comments": len(rows),
         "prepared_comments": len(manifest),
-        "skipped_empty": len(rows) - len(manifest),
+        "skipped_empty": len(rows) - nonempty_count,
+        "excluded_by_period_sampling": nonempty_count - len(manifest),
+        "per_period": per_period,
         "batches": len(batches),
         "period_counts": dict(Counter(row["period"] for row in manifest)),
         "instruction": INSTRUCTION,

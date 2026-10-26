@@ -67,12 +67,13 @@ uv run --locked python scripts/youtube/collect_random_sample.py collect \
   --target 30000 --seed 20261025
 ```
 
-Pierwsze polecenie pokazuje stan istniejącej bazy `work_sample_v2`. Drugie
-tworzy **nową** bazę `work_sample_v3`, bo aktualna gałąź zmieniła listę fraz i
-minimalną liczbę komentarzy na film; zapisany protokół `work_sample_v2` nie
+Pierwsze polecenie pokazuje stan nowej bazy `work_sample_v3` (na początku pustej).
+Drugie ją tworzy lub wznawia. Używamy **nowej** bazy, bo aktualna gałąź zmieniła
+listę fraz i minimalną liczbę komentarzy na film; zapisany protokół `work_sample_v2` nie
 pozwala jej wznowić z nowymi ustawieniami. Kolektor może wznawiać pobieranie
-z tej samej bazy, jeśli ustawienia pozostają takie same. Wyszukuje angielskie dyskusje o pracy, zatrudnieniu,
-zwolnieniach i umiejętnościach, bez wpisywania AI/ChatGPT do zapytań. Dzięki
+z tej samej bazy, jeśli ustawienia pozostają takie same. Wyszukuje angielskie
+dyskusje o pracy, zatrudnieniu, zwolnieniach i umiejętnościach, bez wpisywania
+AI/ChatGPT do zapytań. Dzięki
 temu obejmuje także komentarze niezwiązane z AI. Próbka ma osobne pule komentarzy
 sprzed i po 30 listopada 2022 r., według **daty komentarza**, nie daty filmu.
 Szczegółowe filtry języka, długości tekstu, wyświetleń i sposób doboru opisuje
@@ -157,7 +158,8 @@ zatrzymuje cały przebieg. Stan ukończenia jest w `yt_collection_state.csv`.
 | `data/youtube/yt_comments_anonymized.csv` | Tekst, lokalne `comment_id`, `video_id`, data publikacji komentarza i liczba polubień. To główne wejście dla H1. |
 | `data/youtube/yt_collection_state.csv` | Stan pobierania i limit dla poszczególnych filmów; zachowaj go przy przenoszeniu danych. |
 | `data/youtube/yt_transcripts.csv` | Opcjonalne napisy; nie są potrzebne do klasyfikacji komentarzy. |
-| `data/youtube/work_sample_v2/sample.sqlite3` | Oddzielna próba dyskusji o pracy z obu okresów; zawiera komentarze, filmy, zapytania i stan pobierania. |
+| `data/youtube/work_sample_v3/sample.sqlite3` | Bieżąca próba dyskusji o pracy z obu okresów, z nową listą zapytań. |
+| `data/youtube/work_sample_v2/sample.sqlite3` | Archiwalna próba ze starą listą zapytań; nie mieszać z bieżącą próbą. |
 
 Pobieranie nie żąda nazw autorów ani oryginalnych ID komentarzy. Nazwa pliku
 `anonymized` oznacza brak metadanych autora, lecz sam tekst może zawierać dane
@@ -165,13 +167,20 @@ osobowe. Przejrzyj go przed udostępnieniem poza zespołem.
 
 ## 6. Paczki dla małego modelu
 
-Po zakończeniu lub wznowieniu pobierania przygotuj **nową, wersjonowaną** paczkę:
+Gdy nowa próba `work_sample_v3` osiągnie co najmniej 15 000 komentarzy w obu
+okresach, przygotuj **dokładnie 15 000 na okres** w nowym katalogu:
 
 ```bash
 uv run --locked python scripts/youtube/prepare_screening.py \
-  --database data/youtube/work_sample_v2/sample.sqlite3 \
-  --output data/youtube/screening/work_v1
+  --database data/youtube/work_sample_v3/sample.sqlite3 \
+  --per-period 15000 \
+  --output data/youtube/screening/work_v3_30k
 ```
+
+Kolektor zatrzymuje się po całej stronie API, więc w samej bazie może być trochę
+więcej niż 15 000 na okres. `--per-period` losuje powtarzalnie po 15 000
+komentarzy według `--seed` (domyślnie `42`) i zapisuje wybór w manifeście.
+Polecenie odmówi pracy, jeśli w którymkolwiek okresie jest ich za mało.
 
 Bez `--database` skrypt przygotowuje starszy pilot z
 `data/youtube/yt_comments_anonymized.csv`. Każdy zbiór powinien mieć własny katalog

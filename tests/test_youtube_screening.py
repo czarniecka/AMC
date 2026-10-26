@@ -32,6 +32,37 @@ class ScreeningTests(unittest.TestCase):
             config = json.loads((output / "screening_config.json").read_text())
             self.assertEqual(config["period_counts"], {"post": 1, "pre": 1})
 
+    def test_exact_period_sample_is_deterministic_and_requires_enough_comments(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            database = root / "sample.sqlite3"
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "CREATE TABLE comments (video_id TEXT, comment_id TEXT, "
+                    "text_clean TEXT, published_at TEXT)"
+                )
+                connection.executemany(
+                    "INSERT INTO comments VALUES (?, ?, ?, ?)",
+                    [
+                        ("a", "1", "old 1", "2022-11-29T12:00:00Z"),
+                        ("a", "2", "old 2", "2022-11-29T12:00:00Z"),
+                        ("b", "3", "new 1", "2022-12-01T12:00:00Z"),
+                        ("b", "4", "new 2", "2022-12-01T12:00:00Z"),
+                    ],
+                )
+            first = root / "first"
+            second = root / "second"
+            prepare(database, first, per_period=1, seed=7)
+            prepare(database, second, per_period=1, seed=7)
+            self.assertEqual(
+                (first / "batches.jsonl").read_bytes(), (second / "batches.jsonl").read_bytes()
+            )
+            config = json.loads((first / "screening_config.json").read_text())
+            self.assertEqual(config["period_counts"], {"pre": 1, "post": 1})
+            self.assertEqual(config["excluded_by_period_sampling"], 2)
+            with self.assertRaisesRegex(ValueError, "Not enough comments"):
+                prepare(database, root / "too_many", per_period=3)
+
     def test_batches_preserve_identity_and_pre_post_dates(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -25,9 +25,10 @@ With uv installed:
 uv sync --locked
 uv run --locked python scripts/youtube/discover_videos.py
 uv run --locked python scripts/youtube/collect_comments.py
+uv run --locked python scripts/youtube/collect_random_sample.py collect --target 30000 --seed 20261025
 uv run --locked python scripts/youtube/collect_random_sample.py status
-uv run --locked python scripts/youtube/prepare_screening.py --database data/youtube/work_sample_v2/sample.sqlite3 --output data/youtube/screening/work_v1
-uv run --locked python scripts/youtube/run_screening.py prepare --input-dir data/youtube/screening/work_v1 --run-dir data/youtube/screening/work_v1/luna_pilot --limit-batches 1
+uv run --locked python scripts/youtube/prepare_screening.py --database data/youtube/work_sample_v3/sample.sqlite3 --per-period 15000 --output data/youtube/screening/work_v3_30k
+uv run --locked python scripts/youtube/run_screening.py prepare --input-dir data/youtube/screening/work_v3_30k --run-dir data/youtube/screening/work_v3_30k/luna_pilot --limit-batches 1
 uv run --locked python scripts/classify_comments.py --limit 50
 uv run --locked python scripts/run_web.py
 ```
