@@ -65,6 +65,8 @@ class ScreeningRunnerTests(unittest.TestCase):
         self.assertTrue(request["body"]["text"]["format"]["strict"])
         with self.assertRaisesRegex(ValueError, "already exists"):
             prepare(self.source, self.run_dir)
+        with self.assertRaisesRegex(ValueError, "No batches selected"):
+            prepare(self.source, self.root / "skip_all", skip_batches=1)
 
     def test_submit_status_and_fetch_validate_results(self):
         prepare(self.source, self.run_dir)

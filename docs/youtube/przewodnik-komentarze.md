@@ -230,7 +230,8 @@ uv run --locked python scripts/youtube/run_screening.py fetch \
 
 Polecenie `status` powtarzaj, aż batch się zakończy; dopiero wtedy użyj `fetch`.
 Obejrzyj `predictions.jsonl` i `validation_report.json`. Pełny przebieg
-przygotuj w nowym katalogu bez `--limit-batches 1`, a następnie wykonaj
+przygotuj w nowym katalogu z `--skip-batches 1` i bez `--limit-batches 1`,
+a następnie wykonaj
 submit/status/fetch. Każda paczka komentarzy staje się jednym żądaniem w
 asynchronicznym zadaniu Batch API. Wysłanie
 komentarzy do zewnętrznego API przekazuje ich treść usługodawcy i może kosztować;

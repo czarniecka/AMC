@@ -125,14 +125,17 @@ def prepare(
     *,
     model: str = "gpt-6-luna",
     limit_batches: int | None = None,
+    skip_batches: int = 0,
 ) -> dict:
     """Create an OpenAI Batch API request file from frozen project batches."""
     if run_dir.exists():
         raise ValueError("Run directory already exists; choose a new path")
-    if not model.strip() or (limit_batches is not None and limit_batches < 1):
-        raise ValueError("Provide a model and a positive limit_batches")
+    if not model.strip() or (limit_batches is not None and limit_batches < 1) or skip_batches < 0:
+        raise ValueError("Provide a model, a nonnegative skip, and a positive limit_batches")
     config, batches = _load_inputs(input_dir)
-    selected = batches[:limit_batches]
+    selected = batches[skip_batches:]
+    if limit_batches is not None:
+        selected = selected[:limit_batches]
     if not selected:
         raise ValueError("No batches selected")
     run_dir.mkdir(parents=True)

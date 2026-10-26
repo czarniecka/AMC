@@ -48,9 +48,9 @@ uv run --locked python scripts/youtube/run_screening.py fetch --input-dir data/y
 
 Run `status` again until the job is complete, then run `fetch`. Inspect
 `luna_pilot/predictions.jsonl` and `validation_report.json`. For all prepared
-batches, create a **different** run directory and omit `--limit-batches` from
-`prepare`; then repeat submit/status/fetch. This full run includes the pilot
-request again, so deduplicate by `batch_id` if combining outputs. `submit` does
+batches, create a **different** run directory with `--skip-batches 1` and omit
+`--limit-batches` from `prepare`; then repeat submit/status/fetch. This sends
+only the remaining groups after the pilot. `submit` does
 not create a second job after recording a Batch ID. `fetch` downloads provider
 output and error files, validates every returned comment ID and writes only
 validated predictions. Missing or failed requests are counted in the report.

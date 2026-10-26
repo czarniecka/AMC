@@ -19,6 +19,7 @@ def main() -> int:
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--model", default="gpt-6-luna")
     parser.add_argument("--limit-batches", type=int)
+    parser.add_argument("--skip-batches", type=int, default=0)
     args = parser.parse_args()
     if args.command in {"prepare", "fetch"} and not args.input_dir:
         parser.error("--input-dir is required for prepare and fetch")
@@ -29,6 +30,7 @@ def main() -> int:
                 args.run_dir,
                 model=args.model,
                 limit_batches=args.limit_batches,
+                skip_batches=args.skip_batches,
             )
             print(f"Prepared {len(result['batch_ids'])} API requests in {args.run_dir}")
         elif args.command == "submit":
