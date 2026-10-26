@@ -63,16 +63,21 @@ Do porównania okresów w H1 użyj istniejącego kolektora na tej gałęzi:
 ```bash
 uv run --locked python scripts/youtube/collect_random_sample.py status
 uv run --locked python scripts/youtube/collect_random_sample.py collect \
+  --database data/youtube/work_sample_v3/sample.sqlite3 \
   --target 30000 --seed 20261025
 ```
 
-Kolektor zapisuje dane w `data/youtube/work_sample_v2/sample.sqlite3` i może
-wznawiać pobieranie. Wyszukuje angielskie dyskusje o pracy, zatrudnieniu,
+Pierwsze polecenie pokazuje stan istniejącej bazy `work_sample_v2`. Drugie
+tworzy **nową** bazę `work_sample_v3`, bo aktualna gałąź zmieniła listę fraz i
+minimalną liczbę komentarzy na film; zapisany protokół `work_sample_v2` nie
+pozwala jej wznowić z nowymi ustawieniami. Kolektor może wznawiać pobieranie
+z tej samej bazy, jeśli ustawienia pozostają takie same. Wyszukuje angielskie dyskusje o pracy, zatrudnieniu,
 zwolnieniach i umiejętnościach, bez wpisywania AI/ChatGPT do zapytań. Dzięki
 temu obejmuje także komentarze niezwiązane z AI. Próbka ma osobne pule komentarzy
 sprzed i po 30 listopada 2022 r., według **daty komentarza**, nie daty filmu.
 Szczegółowe filtry języka, długości tekstu, wyświetleń i sposób doboru opisuje
-[dokumentacja tej próby](random-sample.md). Nie jest to reprezentatywna próba
+[dokumentacja tej próby](random-sample.md) i [dobór fraz](query-selection.md).
+Nie jest to reprezentatywna próba
 wszystkich komentarzy YouTube.
 
 ## 3. Pilot z wybranych filmów: znalezienie źródeł

@@ -14,6 +14,9 @@ uv run --locked python scripts/youtube/prepare_screening.py --database data/yout
 The older reviewed-video pilot can still be prepared from its CSV by omitting
 `--database` and choosing another output directory. Keep these two collection
 frames separate; their comments can overlap and their selection rules differ.
+The existing `work_sample_v2` database remains usable for screening. A new
+collection with the branch's updated query list and minimum-comment rule requires
+a new database path, such as `data/youtube/work_sample_v3/sample.sqlite3`.
 
 The output directory must be new. `batches.jsonl` contains one JSON object per
 line, with up to 100 comments, each carrying a short `id` and its text. Batches

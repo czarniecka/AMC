@@ -193,9 +193,7 @@ class SampleStore:
                 ),
             )
 
-    def save_videos(
-        self, search, items: list[dict], min_views: int, min_comments: int = 1
-    ) -> None:
+    def save_videos(self, search, items: list[dict], min_views: int, min_comments: int = 1) -> None:
         period = search["period"]
         lower, upper = PERIODS[period]
         ids = json.loads(search["selected_ids_json"])
