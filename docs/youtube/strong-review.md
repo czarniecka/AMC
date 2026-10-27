@@ -2,17 +2,23 @@
 
 ## Szybki start
 
-1. Otwórz `strong_review_8k_v3/prompts/review_0001.md` i przekaż **cały** plik
-   wybranemu mocniejszemu modelowi. Każdy z 200 plików zawiera instrukcję oraz
-   40 komentarzy; pliki wykonuj niezależnie.
+Próba do współdzielenia w Git znajduje się w `datasets/youtube/strong_review_8k_v3/`.
+Jest to **ta sama** próba 8 000 komentarzy co w lokalnej bazie v3: 200 plików
+JSON po 40 komentarzy, jedna wspólna instrukcja i manifest. Nie zawiera
+pozostałych 42 000 komentarzy ani etykiet Luny.
+
+1. Przekaż wybranemu mocniejszemu modelowi cały plik `instructions.md` oraz
+   **jeden** plik `batches/review_0001.json`. Tak samo wykonaj kolejne batche;
+   nie mieszaj ich w jednym kontekście rozmowy.
 2. Zapisz odpowiedź jako czysty JSON w
-   `strong_review_8k_v3/responses/review_0001.json`. Zachowaj nazwę pliku i
-   `batch_id`; analogicznie postępuj dla następnych promptów.
+   `datasets/youtube/strong_review_8k_v3/responses/review_0001.json`.
+   Zachowaj nazwę pliku i `batch_id`.
 3. Wczytaj zapisane odpowiedzi do SQLite:
 
    ```bash
    uv run --locked python scripts/youtube/import_strong_review.py \
      --review-dir data/youtube/screening/work_v3_50k_stage1_v1/strong_review_8k_v3 \
+     --responses-dir datasets/youtube/strong_review_8k_v3/responses \
      --model NAZWA_MODELU
    ```
 
@@ -65,11 +71,10 @@ Bez `--allow-incomplete` skrypt wymaga etykiet Luny dla całych 50 000.
 
 ## Pliki do mocniejszego modelu
 
-`prompts/review_0001.md` do `prompts/review_0200.md` zawierają samodzielną
-instrukcję i po 40 komentarzy. Jeden plik jest jednym zadaniem. Otwórz plik,
-przekaż jego **całą** zawartość wybranemu modelowi i zapisz wyłącznie zwrócony
-obiekt JSON pod tą samą nazwą w `responses/`, np.
-`responses/review_0001.json`. Katalog `responses/` jest na razie pusty.
+Lokalne `prompts/review_0001.md` do `prompts/review_0200.md` zawierają tę samą
+instrukcję i te same komentarze w jednym pliku. Są odpowiednikiem wspólnego
+`instructions.md` i kolejnych JSON-ów z `datasets/`. Jeden batch jest jednym
+zadaniem. Katalog `responses/` jest na razie pusty.
 Nie przekazuj modelowi `annotations.sqlite3` ani `manifest.json`: zawierają
 daty, etykiety Luny i pochodzenie komentarzy, które mogłyby sugerować ocenę.
 
@@ -100,7 +105,7 @@ Fragment poprawnego formatu odpowiedzi (rzeczywisty plik musi zawierać
 }
 ```
 
-Po zapisaniu odpowiedzi uruchom import lokalny:
+Po zapisaniu odpowiedzi w lokalnym katalogu `responses/` uruchom import:
 
 ```bash
 uv run --locked python scripts/youtube/import_strong_review.py \
@@ -114,6 +119,14 @@ etap 2 w osobnych tabelach, bez nadpisywania Luny. Można uruchamiać go po
 każdym ukończonym pliku; ponowny import tych samych etykiet jest bezpieczny,
 zmiana wcześniej zaimportowanej odpowiedzi powoduje błąd. Pliki `responses/`
 pozostają surowym śladem odpowiedzi modelu.
+
+Eksport identycznych JSON-ów z lokalnej próby można odtworzyć poleceniem:
+
+```bash
+uv run --locked python scripts/youtube/export_strong_review_json.py \
+  --review-dir data/youtube/screening/work_v3_50k_stage1_v1/strong_review_8k_v3 \
+  --output datasets/youtube/strong_review_8k_v3_copy
+```
 
 Przed treningiem klasyfikatora trzeba jeszcze ręcznie przejrzeć próbę z obu
 okresów i rozbieżności między Luną a mocniejszym modelem. Podział trening/test

@@ -1,0 +1,165 @@
+{
+  "batch_id": "review_0158",
+  "comments": [
+    {
+      "id": "c00031579",
+      "text": "I wish pols keep there jobs"
+    },
+    {
+      "id": "c00004549",
+      "text": "I want to be a software engineer, and computer engineer is the career at my college. Does it work?"
+    },
+    {
+      "id": "c00031288",
+      "text": "Bro I'm so lucky I live in Quebec and my college will only be 3000$ per year"
+    },
+    {
+      "id": "c00043473",
+      "text": "Lol I'm a frontend developer currently learning data science, lol I am currently noticing the differences"
+    },
+    {
+      "id": "c00027780",
+      "text": "This is how you get stuck in a dead end job nowadays"
+    },
+    {
+      "id": "c00016884",
+      "text": "The only thing AI has done for me is turn me into a computer... I used to just get stuck and figure things out myself, now I have multiple terminals open with OpenCode for each project and parallel prompting each of them and waiting them to finish, evaluate then iterate like a computer architecture pipeline. Saying increasing my productivity by 5 folds is a vast underestimation. I now have no hesitate to experiment an idea, refactor the entire program, pointing out issues with existing programs. There are AI doubters keep bringing up what they've heard last year with GPT 3.5 problems, all I can do is 🤦‍♂"
+    },
+    {
+      "id": "c00041217",
+      "text": "God 2027 I will land my first software job🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻"
+    },
+    {
+      "id": "c00035828",
+      "text": "the concept of AI is not the problem as I see it. It's the infrastructure and the a$$holes in control of it. I do not trust Musk, Amodei, Altman etc to do the things necessary to keep AI safe and beneficial. The infrastructure is also huge, all these data centres are so amazingly wasteful, and ruining the lives of countless people who live near them. Putting them in space is fool hardy too, how do you maintain them? Will we be sending technicians up in starship? I mean so many issues with AI!"
+    },
+    {
+      "id": "c00018056",
+      "text": "With a \"computer and software engineering\" degree (and the necessary practical skills too) can i design PCBs or is it only for people who graduated in electrical/electronic?"
+    },
+    {
+      "id": "c00014699",
+      "text": "I watched this with 100% attention, it's just so *gripping.*"
+    },
+    {
+      "id": "c00010147",
+      "text": "Make them able to rech the the wall"
+    },
+    {
+      "id": "c00006127",
+      "text": "AI? half of these things we see are AI"
+    },
+    {
+      "id": "c00010473",
+      "text": "What's the name of the BGM?"
+    },
+    {
+      "id": "c00005893",
+      "text": "Yeah, trust me bro and my mambo-jumbo manipulations with statistics, gaslighting and moving the goalpost, and ignore the hunger you feel in your stomach, and the reality of being unemployed for the last several years. Thanks, bro! It's almost like I don't want to eat and earn money anymore, when I had such a good laugh! P.S. I acknowledge, than it is not entirely AI to blame, but rather a complex of coincidences (coincidences, right?), but I know for certain, that AI was one of the most impactful factors."
+    },
+    {
+      "id": "c00009102",
+      "text": "The big issue is A LOT of Software Engineering jobs require a CS degree, but a CS degree doesn’t prepare you for the job. Unless you have a really and I’m mean really cool Professor that goes out their way to make leet code problems as homework and part of their curriculum and the reinforce pair programming, you won’t learn things at all. Yes you will know memory and bytes and bits and how to computational (or binary) math works, but the only language (if you have been exposed to one at all) will probably be C or C++. I have no issues with C being taught as a ton of languages are based on it, and if you want to go into game development you will most likely use C++. The issue I have is the CS major is so out of touch of reality. They don’t do market research. Like what jobs require this degree and what skills those jobs need. And literally if they let a record of what the grads are working the data would show most CS majors are just programmers. Seriously and that’s the least thing being taught in CS degree. You have more math exposure than coding. Like why ??? Come on, SQL + Python. Super versatile. Build mini games, yes. Build web apps, yes. Build scrape bots, yes. Build bots, yes. Cybersecurity, yes. Machine learning and AI, yes. Data Science, yes. And because Python is C based you can teach the basics that are similar in most languages, variables, functions, loops, conditionals, etc.. only thing differs is syntax, logic stays same. So it’s a huge disservice to the students seeing a big market for Web Development or Software Engineering and it REQUIRING A BACHELOR IN CS. They go in thinking they will come out a seasoned programmer and job ready… no they come out at square one.. yes they laid done the foundation (which took them 4 YEARS) but now they can learn ON THEIR OWN TIME THINGS THAT ACTUALLY WILL JUSTIFY OR PAY OFF THE 4 YEAR DEGREE. LITERALLY THE BIGGEST SCAM EVER… IF ALL I WANT TO DO IS DISABLE THE DISLIKE BUTTON AS A WEB DEVELOPER “SOFTWARE ENGINEER” I NEED PSYCHOLOGY, PHYSICS, CALCULUS, UNDERSTAND HOW MEMORY WORKS AND HOW THE BINARY BITS ARE ADDED AND SUBTRACTED. When in reality it’s as simple as disable={true}. AND ANOTHER DISSERVICE COLLEGES AND UNIVERSITIES DO, THEY DONT TEACH YOU HOW TO GOOGLE OR HOW TO STACK-OVERFLOW OR DO GIT OR VERSION CONTROL. LIKE COME ON THATS JUST PLAIN ROBBERY OF YOUR TIME, LEARNING GIT AND STACK OVERFLOW IS THE 1 MOST IMPORTANT THING IF YOU WANT TO DO ANY TUPE OF CODING. Other people ran in same problem, It’s not just you, you’re not just stupid, or sometimes it’s a know bug or side effect. For example if you put a console.log statement in useEffect hook in react causes rerenders. And you will be banging your head against the wall asking what is going on or if you did something wrong. And the answers is no and yes, you did something that you should have and that caused an an expected unexpected behavior, by unexpected I mean for you. You know nothing about clean functions yet, and etc.. You don’t know about safe practices.. And know showed you the Community on Stackoverflow, no one introduced you to the community around the language you are using, and that’s a HUGE PROBLEM. There are known bugs that you can scan for by quickly searching the libraries GitHub issues or some forum that discusses that topic, but no one taught you this, so you thing youre alone and you caused this issue and you’re dumb and it’s you and you want to give up because you don’t understand why something is happening or producing a weird side effect. And I guess Unis and colleges do it to weed out people and only get the people that are “smart” and willing to put in the work and effort. But come on seriously why overcomplicate things for beginners that are taking their first CS class ? Use an easy syntax language like Python to introduce basics and CS concepts and basic Algorithm structure. Then in more advanced classes move on to Java or C++ or still over advanced in Python. There is absolutely no need to do basic CS intro class in C other than the fact that that’s how it was we suffered no you suffer. Or because that’s the professor weird obsession language. And im not dogging and all teachers. I had great professors. Some ecoraged us to explore beyond the covered curriculum, for example for a JS (vanilla JS) class my professor accepted work in REACT JS, I even submitted some work in Typescript and he was super stoked about it. And I had teachers that made us do a ton of programming, pair up with partners for the whole semester to do weekly challenges and also you have to do your own side quest challenge. But then again I had professors who hand you the book listed what to read and what exercises to do from the book, left for the entire semester ( online class) no lectures no check ins, due date on all assignments was last day of class. Absolute dumpster fire of a class. And some teachers are so lazy they reuse and recycle their old material it so reused you can find other students work or notes online.. So then you’re both putting as minimal effort as possible to seem as you’re working and none of you will admit that you’re not so you will pass with at least a C. Just know what you’re getting yourself into and why ?? Be mindful of what you will learn and questions things always and research and learn constantly, only way you will survive."
+    },
+    {
+      "id": "c00016029",
+      "text": "i ahve always wanted to be an animator i didnt even know it payed that much"
+    },
+    {
+      "id": "c00041704",
+      "text": "Can't thank you enough for helping shine a light on specific questions that so many of us have regarding the industry! As an undergrad graduating in 2022, I have taken an interest in a more data scientist track compared to a data analyst track. Since data scientist roles more often than not require master's degrees, should someone look to become a data analyst initially and eventually become a data scientist later in their career, or would you suggest a different path for someone looking to become a data scientist?"
+    },
+    {
+      "id": "c00040257",
+      "text": "because its too depressing."
+    },
+    {
+      "id": "c00037628",
+      "text": "I am a green card holder and my recruiter told me that I can get a waiver after getting in for Cryptologist job. He also mentioned that I must get the required G72 before joining so I there might be a chance to get a waiver. Is this information accurate? Also, in case I couldn’t get the G72 and I scored lower. Will I still be able to get waived for that?"
+    },
+    {
+      "id": "c00027055",
+      "text": "watching this as im currently laid off from ai taking my job"
+    },
+    {
+      "id": "c00009041",
+      "text": "Wow I’m still genuinely surprised to find good content anywhere these days but so refreshing when I do. Thanks!"
+    },
+    {
+      "id": "c00030959",
+      "text": "Just ask ChatGPT, How many R is in STRAWBERRY? 🤣"
+    },
+    {
+      "id": "c00020506",
+      "text": "thanks this will help me become a McDonald's employee 🤸🤸🤸"
+    },
+    {
+      "id": "c00006210",
+      "text": "did you need ai to tell you how percentages work?"
+    },
+    {
+      "id": "c00008118",
+      "text": "funny i worked for that company as a chat support agent and cust always as to speak to a human 😄🤣🤣🤣🤣"
+    },
+    {
+      "id": "c00042704",
+      "text": "Some of those were actually inaccurate. My dad is a pilot, he needed a degree to fly commercially. He was told he couldn’t fly until he went to college and got a degree."
+    },
+    {
+      "id": "c00004681",
+      "text": "Just discovered this channel. Plan to check out more so thanks for the content! I'm finishing my PhD in psychological research and only now realised I don't want to do academia anymore. Hoping I can move to data analysis in the industry but so far only know R (and SPSS but that's just a dying program). Ppl tell me a PhD should still make me highly employable cuz I have the stats skills but I worry undergrads with computer science degrees will still look more favourable😓 if you see this comment I'd be interested to know your stance."
+    },
+    {
+      "id": "c00010703",
+      "text": "How is Ai gonna replace civil, mechanical or metallurgical engineers?"
+    },
+    {
+      "id": "c00020271",
+      "text": "Chatbot: \"Hi\" Me: \"REPRESENTATIVE!!!!\""
+    },
+    {
+      "id": "c00039971",
+      "text": "Believe me, animators do NOT make that much AT ALL."
+    },
+    {
+      "id": "c00011497",
+      "text": "What’s the music in the background lmao"
+    },
+    {
+      "id": "c00019914",
+      "text": "I believe we are on borrowed time. An Ai tantrum will end you, your family, all of us. Ai jobloss, Ai as weapons, the list goes on. Can we please find a way to cease Ai / GPT? Or begin pausing Ai before it’s too late. The Ai New World Order Is Here."
+    },
+    {
+      "id": "c00022623",
+      "text": "Sorry Jason, but this is just misinformation. Your analogy fails because you're not just CONSUMING the food (that's the users), you are MAKING the food (that's the developers). Even Robert \"Uncle Bob\" Martin, who said he doesn't even glance at the generated code, specifically said that new developers \"Shouldn't even look at Agents for the first THREE years of their career\" and that to be able to properly develop real taste and understanding, you need \"20-30 years, and make a lot of mistakes\". Expertise and mastery don't happen purely through observation and dialogue, but through experience, repetition, and trial and error; you have to fail to succeed. If I wanted to learn how to cook, I could watch a Master Chef work and make endless inquiries. After a month, I would be able to describe the perfectly medium-rare ribeye but never know what it's like to cook one, and I'd almost certainly overcook it on my first attempt."
+    },
+    {
+      "id": "c00005952",
+      "text": "Here's a thought, what if inside is actually real human's conscious trapped inside the ai robot"
+    },
+    {
+      "id": "c00028931",
+      "text": "99% of the comments here are AI disinfo bots who act like we real people want deadly dystopian robots running around uncontrolled like some Hollywood movie. Find your LOCAL politicians and let them know how you really feel."
+    },
+    {
+      "id": "c00031059",
+      "text": "Well i have a different perspective, all the other technologies u talked about replaced everything they could , except for Interlligence automation is great and replaced as many Humans it could, but it couldn't replace jobs that required intelligence However, AI is intelligence, it can now replace jobs where human intelligence was required. Look at Coding, it required logic and intelligence and Claude is 10 times faster if not more Humans had one part that kept us safe and it was intelligence and now its been artificially replicated Jobs would not go away as governments would intervene and make laws so that everything works out ( and it should) but comparing it with automation and computers is very wrong. Its different and entirely unpredictable."
+    },
+    {
+      "id": "c00016797",
+      "text": "Crazy we just setup an ai receptionist for our small business , can’t believe how well it works"
+    },
+    {
+      "id": "c00015396",
+      "text": "At some point sooner or later AI will be better at humans at every aspect of their job and that's when the human workforce will be reduced that most jobs are effectively gone for humans, AI will be and already is made to operate like how a human would, just faster and cheaper so I think saying Ai is not going to take our jobs because ATMs didn't make bankers is a false equivalence because you are comparing the risk of a machine taking people's job vs Ai which can do anything especially that we're no longer in the age of polymath, most jobs now are so specific that it could just be a task for AI and when Ai can do a task faster and cheaper whats the need for the human worker?"
+    },
+    {
+      "id": "c00007023",
+      "text": "\"special agent\" send to the fbi is wild."
+    },
+    {
+      "id": "c00041946",
+      "text": "Hard reality must be accepted"
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "batch_id": "review_0095",
+  "comments": [
+    {
+      "id": "c00038772",
+      "text": "Kuch bhi. Make video considering private engineering students. You are literally considering IIT Bombay students and saying that they don't even know what AI can do. Literally?"
+    },
+    {
+      "id": "c00028697",
+      "text": "Never heard of anyone working their way up these days, cool if you were born in the 60s or whatever and work for the same company."
+    },
+    {
+      "id": "c00011853",
+      "text": "Nive video, I would like to be a nomad one day. I'm looking at transcription and voice acting jobs now😉"
+    },
+    {
+      "id": "c00026243",
+      "text": "a secret mob is the zombie horse you cant get it in survival"
+    },
+    {
+      "id": "c00035651",
+      "text": "Sure, Preply sounds great until you realize they take a third of your payment right off the top, not to mention that every new student you receive, Preply takes the whole payment so, you're working for free everytime you give a new student's initial lesson. Have fun!"
+    },
+    {
+      "id": "c00046920",
+      "text": "what about networking"
+    },
+    {
+      "id": "c00037656",
+      "text": "Love money more than people... sack a few top earners and make your business better. Use your float."
+    },
+    {
+      "id": "c00001423",
+      "text": "1:54 Talks about new bots while showing P2 Ports on computer in call center!!!!! Techno disconnect."
+    },
+    {
+      "id": "c00004785",
+      "text": "``` -- Get the player's character local player = game.Players.LocalPlayer local character = player.Character -- Create a score variable local score = 0 -- Function to update the score local function updateScore() player.leaderstats.Score.Value = score end -- Create a coin collection system local function collectCoin(coins) for _, coin in pairs(coins:GetChildren()) do coin.Touched:Connect(function(hit) if hit.Parent == character then score = score + 1 updateScore() coin:Destroy() end end) end end -- Get all coins in the workspace local coins = game.Workspace.Coins collectCoin(coins) -- Update the score when the player spawns player.CharacterAdded:Connect(function(character) updateScore() end) ```"
+    },
+    {
+      "id": "c00014562",
+      "text": "Maybe it can happen in next few decades but now IITIANS have a lot reputation"
+    },
+    {
+      "id": "c00031474",
+      "text": "posting on reddit about getting replaced by an Indian team in India or complaining about RTO"
+    },
+    {
+      "id": "c00046432",
+      "text": "Why does the blurred mob on the thumbnail look like your minecraft avatar"
+    },
+    {
+      "id": "c00011566",
+      "text": "This is literally me with everything"
+    },
+    {
+      "id": "c00004139",
+      "text": "Its a fake ai generated video"
+    },
+    {
+      "id": "c00047568",
+      "text": "Fun fact chatgpt still not able to solve jeeadvance level problems"
+    },
+    {
+      "id": "c00025154",
+      "text": "ok but how to do when you don't know if you wanna spend your life trying to solve why your code doesn't work as intended and you also have depression plus a brain that can't focus on anything and even the idea of grind and hard work makes you tired and you would actually be happy if you settled for less with an occupation that makes you feel peaceful but you can't quit because of people's expectations and you are not brave or have the enough strength to make that kind of dramatic change in your life"
+    },
+    {
+      "id": "c00028292",
+      "text": "Give it time to breath. AI is still too new to take everyone's jobs. It's just not there yet. And you have to combine AI with a body, a robot. A box that thinks is one thing, maybe it can do a call center job or secretarial job, but a robotic body that thinks is another thing entirely. That can physically do your job. So until robotics and automation catch up to the AI brain, it isn't taking your job. Might take a few more years yet so chill and stop being hysterical over it."
+    },
+    {
+      "id": "c00049261",
+      "text": "i think the most 2 stressful jobs are missing on this list, Surgeon and Chef"
+    },
+    {
+      "id": "c00018296",
+      "text": "How much syntax do you need to see not to code anymore...and tell others what to do...a developers dream :)"
+    },
+    {
+      "id": "c00030801",
+      "text": "Well that is gonna give me nightmares have fun trying to sleep Imagine that in horror movies"
+    },
+    {
+      "id": "c00046340",
+      "text": "Big enough so it reaches the end of your desk"
+    },
+    {
+      "id": "c00038435",
+      "text": "C++ is also good for video games because of its speed"
+    },
+    {
+      "id": "c00002237",
+      "text": "Me : in that library Oh my god I am in heaven"
+    },
+    {
+      "id": "c00021453",
+      "text": "Might've aswell bought a piano. Go Bluthner. 20-25k~ish"
+    },
+    {
+      "id": "c00020197",
+      "text": "Fuck I change my mind - This is fucking AI !!!"
+    },
+    {
+      "id": "c00015493",
+      "text": "THIS IS AI. U STILL NEED HUMANS TO DO CONCRETE AND STUFF LIKE THAT.. BUT THIS IS AI VIDEO"
+    },
+    {
+      "id": "c00042028",
+      "text": "please someone let me know: I’m working on my portfolio and just finished my associates. Do you know if CS jobs are hard to get during covid-19? are there more jobs?"
+    },
+    {
+      "id": "c00032500",
+      "text": "chat gpt score negaitive in jee adv now say i have chat gpt for maths phy and chem"
+    },
+    {
+      "id": "c00034769",
+      "text": "But Internet-based AI will be able to do anything that a person can do at a computer. And robots will do the physical work. What jobs will be left over for people? Are you asserting that companies will just employ people the same way that they do airline pilots? As some sort of psychological safety cushion?"
+    },
+    {
+      "id": "c00009722",
+      "text": "What about pigmen no not the piglins not the zombie pigmen but the real original is Pigmen they were meant to be villagers but they were scrapped via steveager and villager"
+    },
+    {
+      "id": "c00004119",
+      "text": "Bro all those videos of dudes saying how much they make per year is the reason this market is so damn saturated."
+    },
+    {
+      "id": "c00024627",
+      "text": "I know this is AI but I feel this isnt too far away in the future….."
+    },
+    {
+      "id": "c00028632",
+      "text": "I thought this is a serious mob but its a villager Steve I laugh"
+    },
+    {
+      "id": "c00005948",
+      "text": "Call centers are in India and latin america because we are paid cheaper!!! I work for zipcar and they pay a shhhh...... And they ask you for s lot of things"
+    },
+    {
+      "id": "c00000441",
+      "text": "If I ever have chosen to work in movie industry I would like to be a camera man/ woman or special effect specialist or work together in post production e.g cutting movie to give it last shape. Directing or acting would be definitely not for me.But well I am customs clerk specialist so not in the movie industry."
+    },
+    {
+      "id": "c00046747",
+      "text": "Does doing an MSc in economics enough maths to be able too become actuary?"
+    },
+    {
+      "id": "c00021966",
+      "text": "It's not hard to do things to earn well that AI can't take from you."
+    },
+    {
+      "id": "c00009038",
+      "text": "Good evening from my own side,I live in Freetown Sierra Leone,west africa.can you pls send me all the details of these companies I means the names of the. Companies and their names thanks Abu Bakarr Sidique"
+    },
+    {
+      "id": "c00033042",
+      "text": "what the hack dude, bitcoin for porn, are you kidding me?😂😂😂😂"
+    },
+    {
+      "id": "c00041843",
+      "text": "It's the nedical bill bro😅.... runaway before it makes you die"
+    }
+  ]
+}

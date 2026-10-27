@@ -1,0 +1,24 @@
+{
+  "source_sha256": "d0907988d06e809d11fb781ce6f1da767fef99974f6852f6022bd82c78ea6642",
+  "instruction_sha256": "8f4b31f02d4772291ed9e7268876303341ab7c7e1323562471169a7cb2806bb0",
+  "seed": 20261027,
+  "target": 8000,
+  "batch_size": 40,
+  "source_comments": 50000,
+  "luna_labeled": 49800,
+  "missing_luna_labels": 200,
+  "review_count": 8000,
+  "review_batches": 200,
+  "review_by_bucket_period": {
+    "ai_only:post": 1453,
+    "ai_only:pre": 141,
+    "ai_work_concern:post": 907,
+    "ai_work_concern:pre": 122,
+    "ai_work_other:post": 827,
+    "ai_work_other:pre": 148,
+    "unrelated:post": 734,
+    "unrelated:pre": 733,
+    "work_no_ai:post": 1468,
+    "work_no_ai:pre": 1467
+  }
+}

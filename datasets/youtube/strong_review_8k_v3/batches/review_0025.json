@@ -1,0 +1,165 @@
+{
+  "batch_id": "review_0025",
+  "comments": [
+    {
+      "id": "c00046541",
+      "text": "Bro ai can't replace top 1 percent coders, programera and software engineers."
+    },
+    {
+      "id": "c00014177",
+      "text": "Think of all the people. That will be loosing their jobs."
+    },
+    {
+      "id": "c00014351",
+      "text": "The Myth of Liberated Labor: A Short Critique of AI Optimism The video sells itself as a soothing, data-driven analysis of the AI revolution. It uses historical examples (ATMs, elevators) to prove that technology will not take our jobs, but rather free us from routine tasks and turn us into \"super-workers.\" However, upon closer inspection, the text reveals itself as a masterpiece of neoliberal ideology. It perfectly distracts from the actual questions of power and property, psychologically preparing the working class for the next stage of self-exploitation. Here are the four biggest rhetorical tricks of the text: 1. The ATM Myth: \"Augmentation\" is Just Another Word for Intensification The video celebrates the example of bank tellers: ATMs took over the routine work, so the employees had time for \"more complex tasks.\" In the reality of capitalism, this \"augmentation\" simply means work intensification. Those \"more complex tasks\" consisted of aggressively cross-selling credit cards and high-interest loans. The time saved by the machine was not given to the workers as leisure; it was filled by capital with even more profit maximization. 2. The Productivity Trap: Who Owns the 520% More Output? The video calculates that AI can give a worker a 10% productivity gain, which compounds to 520% more output in a year. This is presented as a personal gain. What is completely ignored: Who owns this surplus value? The worker? No, their wage stays the same. The 520% more value flows directly to the owners of the AI and the server farms. The video celebrates the increase in the rate of exploitation, while pretending that AI is a neutral tool that makes the worker \"more powerful.\" 3. The Illusion of \"New Jobs\": Quantity Over Quality The video cites data showing that 60% of today's jobs did not exist 50 years ago (e.g., dog psychiatrists, wind turbine technicians). Therefore, technology creates more jobs than it destroys. This is a cynical survivorship bias. It ignores the precarity of new mass jobs. While we marvel at niche jobs, the majority of the working class is being pushed into the gig economy (like the Uber drivers mentioned in the video itself, 96% of whom quit within a year). Technology has automated secure middle-class jobs and forced the rest into insecure, poorly paid service roles. 4. Discipline Through Fear: \"Learn AI, or It's Your Fault\" The core sentence of the video: \"Someone using AI will take your job if you do not use AI.\" This is the purest disciplinary tool of late capitalism. Systemic risks (monopolization, profit pressure) are completely shifted onto the individual. If you lose your job, it’s not because of the greed of shareholders, but because you weren't flexible enough. The pressure for constant self-optimization is masked as personal freedom. Conclusion: The Philosophy of Constant Self-Optimization The video tells us at its core: \"Don't be afraid of the machine. Be afraid of your own obsolescence. You just have to think harder and more complexly to compete with it.\" It replaces the political question \"Who owns technological progress and who benefits from it?\" with the individualistic question \"How fast can you adapt?\". It is not a neutral analysis, but a subtle call for capitulation—with the goal of preventing us from seeing through the game of technological exploitation and finally changing its rules."
+    },
+    {
+      "id": "c00004128",
+      "text": "You know what I’m becoming a pro gamer I better get payed😊"
+    },
+    {
+      "id": "c00013587",
+      "text": "you have chance to follow someone day's one day life and work,let me able to know about japanese one day common life,please continue it."
+    },
+    {
+      "id": "c00031047",
+      "text": "Why all Indians are only become consumer of foreign companies Why they are not making own Chatgpt or something big . Chatgpt use Krna nhi khud ki technology bnana sikho ."
+    },
+    {
+      "id": "c00037201",
+      "text": "Get access to our latest AI frameworks, templates, training videos and weekly coaching to build AI agents for your business or your clients here https://www.skool.com/ai-business-founders-hive. Or if you want us to build these AI systems for you, book a call to hire us here https://www.aifoundershq.com/?video=8QpHdZsHoe4"
+    },
+    {
+      "id": "c00009881",
+      "text": "Hes got a big forehead"
+    },
+    {
+      "id": "c00020014",
+      "text": "Just got here 🙃 I'll be back when I get the job🎉"
+    },
+    {
+      "id": "c00001220",
+      "text": "One day it will be 3"
+    },
+    {
+      "id": "c00020992",
+      "text": "Pro Boxer : 37k a year hmmmm something don’t seem right"
+    },
+    {
+      "id": "c00004809",
+      "text": "i learnt super basic c++ for arduino , then i transferred to python cuz i want to build many stuff , like games websites or even macros , basically anything that would get me some bucks"
+    },
+    {
+      "id": "c00035441",
+      "text": "Does the description not have to disclose that this is AI generated?"
+    },
+    {
+      "id": "c00016871",
+      "text": "And the who studied from iit doesn't know to use AI"
+    },
+    {
+      "id": "c00018200",
+      "text": "Ai won't take your job but I person who know how to use AI can definitely take your job"
+    },
+    {
+      "id": "c00042963",
+      "text": "we have AI in 12th standard"
+    },
+    {
+      "id": "c00005817",
+      "text": "this stuff needs an AI marker wtf"
+    },
+    {
+      "id": "c00022192",
+      "text": "At least 160 applications?? In the entry-level software engineering field, I didn't get interviews until at least 300-400 applications! I had sent around 600-800 before landing a job. To be fair, most of my applications were sent included entry level, intermediate, senior, executive levels."
+    },
+    {
+      "id": "c00022771",
+      "text": "that's awesome---they should ai finish the video though."
+    },
+    {
+      "id": "c00003156",
+      "text": "0:27 Typescript is more commonly used by now than plain JavaScript. Chat GPT thinks that doing type checking on JavaScript using JSDoc type annotations rather that explicitly using .ts files is a growing trend, used in early builds of Visual Studio Code (where Typescript came from) and parts of Node.js So something like this in add.js: // @ts-check /** * @param {number} a * @param {number} b * @returns {number} */ function add(a, b) { return a + b; } Rather than this in add.ts: function add(a: number, b: number): number { return a + b; } The advantage is you can add typing gradually to an existing project, and you don't need to build before release, you can run it directly, because it's just JavaScript with comments. Though often build systems strip comments before deploying so the type checking has to come first. But even though it is just JavaScript, it can be as as statically type safe if you type check it, because actually the type checking done by '// @ts-check' is done by Typescript. Obviously this only works if you annotate your types, but the same is true of regular Typescript, as explicitly declaring types is also optional in Typescript. Sort of. What actually happens is undeclared types are inferred in Typescript. This also happens when JavaScript is type checked via JSDoc and // @ts-check But the results in some cases are less precise because there is less information available to infer types. But if you annotate everything, it's just as strict."
+    },
+    {
+      "id": "c00036613",
+      "text": "I got it cuz U got the gyaat. Damn good brain. Good luck in learning more and better more successful, I am on the journey and got a job in my second year in university as a stem teacher, not the best job but it do"
+    },
+    {
+      "id": "c00046899",
+      "text": "for me, start with Leetcode, once you are done, apply to Google, 90%, you'll get in"
+    },
+    {
+      "id": "c00005458",
+      "text": "There goes half the Washington factory."
+    },
+    {
+      "id": "c00016173",
+      "text": "Bro what happened to the villagers in Minecraft Steve that's going to be creepy music has to be funny music"
+    },
+    {
+      "id": "c00009061",
+      "text": "I don’t know if you did this already but least prone to automation would be cool"
+    },
+    {
+      "id": "c00020007",
+      "text": "I am so glad that I clicked on you. What is your accent?"
+    },
+    {
+      "id": "c00021765",
+      "text": "More corporate talk BS ...obviously he couldn't just say, \"It's actually really straightforward ...you immediately qualify if you're AI."
+    },
+    {
+      "id": "c00042242",
+      "text": "Chat gpt fails to solve UPSC PAPER😊"
+    },
+    {
+      "id": "c00031723",
+      "text": "Thanks for this video. I am at my dream job now and want to put in 20 years. I also want to advance. I will use your advice. Not only have I seen it is true in the workplace, but your tips on how to interview got me the job in the first place. As to who you hang out with , I am reminded of the old but true saying \"If you want to fly with the eagles, do not hang out with the turkeys.\" That said, I am nice and civil to everyone I work with. The boss has even told us in a meeting that if we cannot get along with others, we will not last long with the company. It is a fine line to walk. Thanks again for all the help you are giving to us. You are doing a great service. Thanks."
+    },
+    {
+      "id": "c00037930",
+      "text": "Sweatshops. Modern day cotton mills"
+    },
+    {
+      "id": "c00004337",
+      "text": "I thought that was a joke! I thought he made up that number to have a ridiculously large sum for the thumbnail. Just did the math and I spend around $14,000 a year. But it was interesting to see how people who live very differently, financially speaking, spend their money."
+    },
+    {
+      "id": "c00027708",
+      "text": "\"I'm not scared of AI at all\". *Proceeds to get an email getting laid off* lol jk maybe As an electrical engineering major (Radio Frequency Specialization) I'm so lucky this won't be as much of a concern for me."
+    },
+    {
+      "id": "c00000024",
+      "text": "Even the best devs still Google or use Ai now it's almost impossible to just know everything unless u really mastered the language"
+    },
+    {
+      "id": "c00042986",
+      "text": "Would love to be a SWAT operative first time I went hunting was when I was 3 with a BB pellet gun combo"
+    },
+    {
+      "id": "c00028121",
+      "text": "That can’t help me at McDonald’s man"
+    },
+    {
+      "id": "c00027071",
+      "text": "<center> in html4 and align=center in css in HTML5 haha even i have to google sometimes bu if someone really needs to remeber these u ned to continuously practice these well i can practice easily because i also give tutitions of computer it helps the students as well as me ;)"
+    },
+    {
+      "id": "c00044385",
+      "text": "So according to you IIT B student won't know how to use AI? 😂 Saste nashe"
+    },
+    {
+      "id": "c00036316",
+      "text": "Having ghost job openings should be illegal 😊"
+    },
+    {
+      "id": "c00008484",
+      "text": "Grow another pair of hands"
+    },
+    {
+      "id": "c00046610",
+      "text": "I really like your videos. But I would like to know why you do not show that older people work, people who are over 45, or is that in Japan people retire very young. Thank you."
+    }
+  ]
+}

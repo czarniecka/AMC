@@ -66,11 +66,11 @@ def validate_answer(answer: object, expected_batch: str, expected_ids: list[str]
     return labels
 
 
-def import_answers(review_dir: Path, model: str) -> dict:
+def import_answers(review_dir: Path, model: str, responses_dir: Path | None = None) -> dict:
     if not model.strip():
         raise ValueError("Provide the exact strong-model name")
     manifest = json.loads((review_dir / "manifest.json").read_text(encoding="utf-8"))
-    response_files = sorted((review_dir / "responses").glob("review_*.json"))
+    response_files = sorted((responses_dir or review_dir / "responses").glob("review_*.json"))
     staged = []
     for path in response_files:
         prompt_path = review_dir / "prompts" / f"{path.stem}.md"
@@ -167,10 +167,11 @@ def import_answers(review_dir: Path, model: str) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--review-dir", type=Path, required=True)
+    parser.add_argument("--responses-dir", type=Path)
     parser.add_argument("--model", required=True)
     args = parser.parse_args()
     try:
-        result = import_answers(args.review_dir, args.model)
+        result = import_answers(args.review_dir, args.model, args.responses_dir)
     except (OSError, ValueError, sqlite3.Error) as error:
         parser.exit(2, f"Import stopped: {error}\n")
     print(json.dumps(result, indent=2))
