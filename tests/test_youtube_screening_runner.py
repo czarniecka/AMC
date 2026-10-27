@@ -6,10 +6,28 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 
-from amc.youtube.screening_runner import fetch, prepare, status, submit, validate
+from amc.youtube.screening_runner import (
+    STAGE1_SCHEME,
+    _output_text,
+    fetch,
+    prepare,
+    status,
+    submit,
+    validate,
+)
 
 
 class ScreeningRunnerTests(unittest.TestCase):
+    def test_joins_multiple_response_text_parts(self):
+        response = {
+            "status": "completed",
+            "output": [
+                {"type": "message", "content": [{"type": "output_text", "text": '{"labels":'}]},
+                {"type": "message", "content": [{"type": "output_text", "text": "[]}"}]},
+            ],
+        }
+        self.assertEqual(_output_text(response), '{"labels":[]}')
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -46,6 +64,26 @@ class ScreeningRunnerTests(unittest.TestCase):
                     "labels": [{"id": "c1", "h1_related": "no", "job_security_concern": "yes"}],
                 },
             )
+
+    def test_stage1_keeps_work_only_comments_and_requires_consistent_stance(self):
+        answer = {
+            "batch_id": "b00001",
+            "labels": [{"id": "c1", "ai": "no", "work": "yes", "stance": "none"}],
+        }
+        self.assertEqual(validate(self.batch, answer, STAGE1_SCHEME), answer)
+        answer["labels"][0]["stance"] = "threat"
+        with self.assertRaisesRegex(ValueError, "without AI and work"):
+            validate(self.batch, answer, STAGE1_SCHEME)
+
+    def test_prepare_uses_stage1_schema_for_new_sample(self):
+        config = json.loads((self.source / "screening_config.json").read_text())
+        config["label_scheme"] = STAGE1_SCHEME
+        (self.source / "screening_config.json").write_text(json.dumps(config))
+        job = prepare(self.source, self.run_dir)
+        request = json.loads((self.run_dir / "requests.jsonl").read_text())
+        label_schema = request["body"]["text"]["format"]["schema"]["properties"]["labels"]
+        self.assertEqual(job["label_scheme"], STAGE1_SCHEME)
+        self.assertEqual(set(label_schema["items"]["properties"]), {"id", "ai", "work", "stance"})
 
     def test_prepare_emits_real_batch_api_request(self):
         job = prepare(self.source, self.run_dir)

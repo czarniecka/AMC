@@ -64,7 +64,7 @@ Do porównania okresów w H1 użyj istniejącego kolektora na tej gałęzi:
 uv run --locked python scripts/youtube/collect_random_sample.py status
 uv run --locked python scripts/youtube/collect_random_sample.py collect \
   --database data/youtube/work_sample_v3/sample.sqlite3 \
-  --target 30000 --seed 20261025
+  --target 50000 --seed 20261025
 ```
 
 Pierwsze polecenie pokazuje stan nowej bazy `work_sample_v3` (na początku pustej).
@@ -167,18 +167,18 @@ osobowe. Przejrzyj go przed udostępnieniem poza zespołem.
 
 ## 6. Paczki dla małego modelu
 
-Gdy nowa próba `work_sample_v3` osiągnie co najmniej 15 000 komentarzy w obu
-okresach, przygotuj **dokładnie 15 000 na okres** w nowym katalogu:
+Gdy nowa próba `work_sample_v3` osiągnie co najmniej 25 000 komentarzy w obu
+okresach, przygotuj **dokładnie 25 000 na okres** w nowym katalogu:
 
 ```bash
 uv run --locked python scripts/youtube/prepare_screening.py \
   --database data/youtube/work_sample_v3/sample.sqlite3 \
-  --per-period 15000 \
-  --output data/youtube/screening/work_v3_30k
+  --per-period 25000 \
+  --output data/youtube/screening/work_v3_50k_stage1_v1
 ```
 
 Kolektor zatrzymuje się po całej stronie API, więc w samej bazie może być trochę
-więcej niż 15 000 na okres. `--per-period` losuje powtarzalnie po 15 000
+więcej niż 25 000 na okres. `--per-period` losuje powtarzalnie po 25 000
 komentarzy według `--seed` (domyślnie `42`) i zapisuje wybór w manifeście.
 Polecenie odmówi pracy, jeśli w którymkolwiek okresie jest ich za mało.
 
@@ -196,7 +196,7 @@ obserwacjami, bo H1 pyta o udział wypowiedzi.
 
 `screening_config.json` zawiera instrukcję dla modelu, przykładowy format
 odpowiedzi, hash pliku wejściowego i liczebności. Instrukcję należy przekazać
-jako komunikat systemowy, a **jedną linię** `batches.jsonl` jako komunikat
+jako komunikat `developer`, a **jedną linię** `batches.jsonl` jako komunikat
 użytkownika. Model powinien zwrócić jeden JSON z tym samym `batch_id` i po jednej
 etykiecie na każde wejściowe `id`:
 
@@ -206,17 +206,24 @@ etykiecie na każde wejściowe `id`:
   "labels": [
     {
       "id": "c00000001",
-      "h1_related": "yes",
-      "job_security_concern": "yes"
+      "ai": "no",
+      "work": "yes",
+      "stance": "none"
     }
   ]
 }
 ```
 
 Przykład pokazuje schemat, a nie pełną odpowiedź dla rzeczywistej paczki.
-Oba pola etykiety dopuszczają `yes`, `no` i `unclear`. Wynik trzeba sprawdzić:
+`ai` i `work` są osobnymi etykietami `yes`/`no`; `stance` ma wartości
+`threat`, `reassurance`, `opportunity`, `mixed` lub `none`. Komentarz o pracy
+bez AI zachowuje `work=yes`, co pozwala uwzględnić go w porównaniu okresów.
+Drugi etap (`attitude`, `threat_type`, `competence_claim`, `sector`) dotyczy
+tylko komentarzy z `ai=yes` i `work=yes`; zobacz
+[wytyczne etapu 1](annotation-guidelines.md) i
+[etapu 2](annotation-guidelines-stage2.md). Wynik trzeba sprawdzić:
 zgodność `batch_id`, dokładnie jeden wynik na każde wejściowe `id`, dozwolone
-wartości i zasadę `h1_related=no` → `job_security_concern=no`. Odpowiedzi
+wartości i zasadę `ai=no` lub `work=no` → `stance=none`. Odpowiedzi
 niekompletne lub błędne trzeba ponowić. Walidację i wysyłanie wykonuje
 `scripts/youtube/run_screening.py`.
 
@@ -225,16 +232,16 @@ wyślij do OpenAI Batch API jedną paczkę próbną:
 
 ```bash
 uv run --locked python scripts/youtube/run_screening.py prepare \
-  --input-dir data/youtube/screening/work_v1 \
-  --run-dir data/youtube/screening/work_v1/luna_pilot \
+  --input-dir data/youtube/screening/work_v3_50k_stage1_v1 \
+  --run-dir data/youtube/screening/work_v3_50k_stage1_v1/luna_pilot \
   --limit-batches 1
 uv run --locked python scripts/youtube/run_screening.py submit \
-  --run-dir data/youtube/screening/work_v1/luna_pilot
+  --run-dir data/youtube/screening/work_v3_50k_stage1_v1/luna_pilot
 uv run --locked python scripts/youtube/run_screening.py status \
-  --run-dir data/youtube/screening/work_v1/luna_pilot
+  --run-dir data/youtube/screening/work_v3_50k_stage1_v1/luna_pilot
 uv run --locked python scripts/youtube/run_screening.py fetch \
-  --input-dir data/youtube/screening/work_v1 \
-  --run-dir data/youtube/screening/work_v1/luna_pilot
+  --input-dir data/youtube/screening/work_v3_50k_stage1_v1 \
+  --run-dir data/youtube/screening/work_v3_50k_stage1_v1/luna_pilot
 ```
 
 Polecenie `status` powtarzaj, aż batch się zakończy; dopiero wtedy użyj `fetch`.
@@ -244,7 +251,8 @@ a następnie wykonaj
 submit/status/fetch. Każda paczka komentarzy staje się jednym żądaniem w
 asynchronicznym zadaniu Batch API. Wysłanie
 komentarzy do zewnętrznego API przekazuje ich treść usługodawcy i może kosztować;
-sprawdź próbny wynik przed pełnym przebiegiem. Batch API wymaga JSONL z jednym
+sprawdź próbny wynik przed pełnym przebiegiem. Szybszy wariant zwykłych żądań
+Responses API opisuje [instrukcja screeningu H1](h1-screening.md). Batch API wymaga JSONL z jednym
 żądaniem API na linię: skrypt tworzy taki plik `requests.jsonl` z wewnętrznego
 `batches.jsonl`, a potem przesyła go przez Files API.
 

@@ -15,7 +15,9 @@ RESULTS_FILE = "results.jsonl"
 ERRORS_FILE = "errors.jsonl"
 PREDICTIONS_FILE = "predictions.jsonl"
 
-SCHEMA = {
+LEGACY_SCHEME = "h1_screening_v1"
+STAGE1_SCHEME = "annotation_stage1_v1"
+LEGACY_SCHEMA = {
     "type": "object",
     "properties": {
         "batch_id": {"type": "string"},
@@ -36,6 +38,32 @@ SCHEMA = {
     "required": ["batch_id", "labels"],
     "additionalProperties": False,
 }
+STAGE1_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "batch_id": {"type": "string"},
+        "labels": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "ai": {"type": "string", "enum": ["yes", "no"]},
+                    "work": {"type": "string", "enum": ["yes", "no"]},
+                    "stance": {
+                        "type": "string",
+                        "enum": ["threat", "reassurance", "opportunity", "mixed", "none"],
+                    },
+                },
+                "required": ["id", "ai", "work", "stance"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["batch_id", "labels"],
+    "additionalProperties": False,
+}
+SCHEMAS = {LEGACY_SCHEME: LEGACY_SCHEMA, STAGE1_SCHEME: STAGE1_SCHEMA}
 
 
 def _write_json(path: Path, value: dict) -> None:
@@ -77,8 +105,10 @@ def _load_inputs(input_dir: Path) -> tuple[dict, list[dict]]:
     return config, batches
 
 
-def validate(batch: dict, answer: object) -> dict:
+def validate(batch: dict, answer: object, label_scheme: str = LEGACY_SCHEME) -> dict:
     """Reject missing, duplicate, invented, or logically inconsistent labels."""
+    if label_scheme not in SCHEMAS:
+        raise ValueError(f"Unknown label scheme: {label_scheme}")
     if not isinstance(answer, dict) or set(answer) != {"batch_id", "labels"}:
         raise ValueError("Model response must contain batch_id and labels")
     if answer["batch_id"] != batch["batch_id"] or not isinstance(answer["labels"], list):
@@ -88,19 +118,30 @@ def validate(batch: dict, answer: object) -> dict:
     if len(labels) != len(expected):
         raise ValueError("Model response does not cover every comment")
     for item, item_id in zip(labels, expected, strict=True):
-        if not isinstance(item, dict) or set(item) != {
-            "id",
-            "h1_related",
-            "job_security_concern",
-        }:
+        fields = (
+            {"id", "ai", "work", "stance"}
+            if label_scheme == STAGE1_SCHEME
+            else {"id", "h1_related", "job_security_concern"}
+        )
+        if not isinstance(item, dict) or set(item) != fields:
             raise ValueError("Model response has an invalid label object")
-        if item["id"] != item_id or any(
-            item[field] not in {"yes", "no", "unclear"}
-            for field in ("h1_related", "job_security_concern")
-        ):
+        if item["id"] != item_id:
             raise ValueError("Model response has a missing, reordered, or invalid label")
-        if item["h1_related"] == "no" and item["job_security_concern"] != "no":
-            raise ValueError("An unrelated comment cannot have a job-security concern label")
+        if label_scheme == STAGE1_SCHEME:
+            if item["ai"] not in {"yes", "no"} or item["work"] not in {"yes", "no"}:
+                raise ValueError("Invalid ai or work label")
+            if item["stance"] not in {"threat", "reassurance", "opportunity", "mixed", "none"}:
+                raise ValueError("Invalid stance label")
+            if (item["ai"] == "no" or item["work"] == "no") and item["stance"] != "none":
+                raise ValueError("A comment without AI and work cannot have a stance")
+        else:
+            if any(
+                item[field] not in {"yes", "no", "unclear"}
+                for field in ("h1_related", "job_security_concern")
+            ):
+                raise ValueError("Invalid legacy label")
+            if item["h1_related"] == "no" and item["job_security_concern"] != "no":
+                raise ValueError("An unrelated comment cannot have a job-security concern label")
     return answer
 
 
@@ -114,9 +155,9 @@ def _output_text(response: dict) -> str:
         for item in output.get("content", [])
         if item.get("type") == "output_text"
     ]
-    if len(parts) != 1:
-        raise ValueError("Model response must contain exactly one text output")
-    return parts[0]
+    if not parts:
+        raise ValueError("Model response contains no text output")
+    return "".join(parts)
 
 
 def prepare(
@@ -133,6 +174,9 @@ def prepare(
     if not model.strip() or (limit_batches is not None and limit_batches < 1) or skip_batches < 0:
         raise ValueError("Provide a model, a nonnegative skip, and a positive limit_batches")
     config, batches = _load_inputs(input_dir)
+    label_scheme = config.get("label_scheme", LEGACY_SCHEME)
+    if label_scheme not in SCHEMAS:
+        raise ValueError(f"Unknown label scheme: {label_scheme}")
     selected = batches[skip_batches:]
     if limit_batches is not None:
         selected = selected[:limit_batches]
@@ -169,15 +213,20 @@ def prepare(
                     "text": {
                         "format": {
                             "type": "json_schema",
-                            "name": "h1_screening",
+                            "name": (
+                                "youtube_annotation_stage1"
+                                if label_scheme == STAGE1_SCHEME
+                                else "h1_screening"
+                            ),
                             "strict": True,
-                            "schema": SCHEMA,
+                            "schema": SCHEMAS[label_scheme],
                         }
                     },
                 },
             }
             stream.write(json.dumps(request, ensure_ascii=False) + "\n")
     job = {
+        "label_scheme": label_scheme,
         "model": model,
         "source_sha256": config["source_sha256"],
         "batches_sha256": hashlib.sha256((input_dir / "batches.jsonl").read_bytes()).hexdigest(),
@@ -310,6 +359,7 @@ def fetch(
         or job["batches_sha256"]
         != hashlib.sha256((input_dir / "batches.jsonl").read_bytes()).hexdigest()
         or job["instruction_hash"] != hashlib.sha256(config["instruction"].encode()).hexdigest()
+        or job.get("label_scheme", LEGACY_SCHEME) != config.get("label_scheme", LEGACY_SCHEME)
     ):
         raise ValueError("This run belongs to a different prepared input")
     if (run_dir / PREDICTIONS_FILE).exists():
@@ -350,7 +400,11 @@ def fetch(
             failures.append(custom_id)
             continue
         try:
-            answer = validate(by_id[custom_id], json.loads(_output_text(response["body"])))
+            answer = validate(
+                by_id[custom_id],
+                json.loads(_output_text(response["body"])),
+                job.get("label_scheme", LEGACY_SCHEME),
+            )
         except (KeyError, TypeError, ValueError):
             failures.append(custom_id)
             continue

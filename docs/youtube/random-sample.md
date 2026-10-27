@@ -29,7 +29,7 @@ comment on a 2021 video is post-launch commentary.
 ## Commands
 
 ```text
-uv run --locked python scripts/youtube/collect_random_sample.py collect --target 30000 --seed 20261025
+uv run --locked python scripts/youtube/collect_random_sample.py collect --target 50000 --seed 20261025
 uv run --locked python scripts/youtube/collect_random_sample.py status
 uv run --locked python scripts/youtube/collect_random_sample.py export --export-count 500 --seed 20261025 --output data/youtube/work_sample_v3/label_studio_v1
 ```
