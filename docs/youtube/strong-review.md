@@ -7,6 +7,14 @@ Jest to **ta sama** próba 8 000 komentarzy co w lokalnej bazie v3: 200 plików
 JSON po 40 komentarzy, jedna wspólna instrukcja i manifest. Nie zawiera
 pozostałych 42 000 komentarzy ani etykiet Luny.
 
+Jeśli duży model ma dostęp do plików repozytorium (np. działa jako agent
+programistyczny), wystarczy polecić mu: **„Wykonaj
+`datasets/youtube/strong_review_8k_v3/ANNOTATE_NEXT.md` dla następnego batcha”**.
+Ten plik każe agentowi samodzielnie przeczytać instrukcję i JSON wejściowy,
+zachować ID, zapisać odpowiedź i uruchomić walidator. Można wskazać konkretny
+numer lub zakres batchy. Zwykły czat bez dostępu do repo wymaga przesłania
+instrukcji oraz pliku JSON.
+
 1. Przekaż wybranemu mocniejszemu modelowi cały plik `instructions.md` oraz
    **jeden** plik `batches/review_0001.json`. Tak samo wykonaj kolejne batche;
    nie mieszaj ich w jednym kontekście rozmowy.

@@ -70,6 +70,7 @@ and labels with a CLARIN-PL model. Credentials: `WYKOP_KEY`, `WYKOP_SECRET`, `WY
 - [H1 screening batches](docs/youtube/h1-screening.md): bounded comment JSONL for a small model.
 - [Mocniejsza anotacja YouTube](docs/youtube/strong-review.md): próba 8 tys. komentarzy, pliki z promptami i import odpowiedzi do SQLite.
 - [JSON-y do drugiego pasa](datasets/youtube/strong_review_8k_v3/manifest.json): 200 batchy po 40 komentarzy i wspólna instrukcja dla modelu.
+- [Zadanie dla agenta anotującego](datasets/youtube/strong_review_8k_v3/ANNOTATE_NEXT.md): agent sam czyta kolejny JSON i zapisuje zweryfikowaną odpowiedź.
 - [YouTube labeling and validation](docs/youtube/comment-labeling-guide.md): codebook,
   blind pilot/evaluation sheets, human gold standard and model quality reports.
 - [YouTube pilot results](docs/youtube/validation-results.md): completed 50-comment
