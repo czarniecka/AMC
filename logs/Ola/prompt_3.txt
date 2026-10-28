@@ -1,0 +1,3 @@
+1. Przeanalizuj obecny kod projektu i opisz mi prosto i dokładnie całe flow przetwarzania danych z youtube’a. 
+2. Muszę przetworzyć dane z https://nabory.kprm.gov.pl/?Ad%5BisAdvancedMode%5D=&Ad%5Bsort%5D=1&Ad%5BpagesCnt%5D=10&Ad%5Bid_province%5D=&Ad%5Bid_city%5D… w celu zbadania tematu „AI a rynek pracy: Jak zmieniają się wymagania kompetencyjne w ogłoszeniach po 2023?”. Moim pomysłem było ich czyszczenie (usunięcie formułek ustawowych), następnie ekstrakcja kompetencji (słownik i mapowanie na esco pl z progiem podobieństwa), następnie ręczna walidacja i wskaźniki w czasie. Wskaż mocne i słabe strony tego podejścia. Jeśli możliwe to zaproponuj lepsze alternatywy.
+3. Na podstawie naszych ustaleń wygeneruj mi kod, który będzie analizował dane z kprm.
