@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from amc.youtube.api_client import CollectionError, YouTubeAPIClient
-from amc.youtube.comment_extractor import extract_comments
+from amc.youtube.comment_extractor import MAX_COMMENTS_PER_VIDEO, extract_comments
 from amc.youtube.exporter import export_collection
 from amc.youtube.models import DEFAULT_QUERIES, Comment, SearchQuery, Transcript, VideoMetadata
 from amc.youtube.storage import CollectionStore
@@ -29,7 +29,7 @@ class CollectorConfig:
     published_after: str = "2023-01-01T00:00:00Z"
     candidates_per_query: int = 50
     max_videos: int = 20
-    max_comments: int = 500
+    max_comments: int = 1000
     include_transcripts: bool = False
     output_dir: Path = Path("data/youtube")
     refresh_comments: bool = False
@@ -53,8 +53,8 @@ class CollectorConfig:
             raise ValueError("candidates_per_query must be between 1 and 500")
         if not 1 <= self.max_videos <= 500:
             raise ValueError("max_videos must be between 1 and 500")
-        if not 0 <= self.max_comments <= 500:
-            raise ValueError("max_comments must be between 0 and 500")
+        if not 0 <= self.max_comments <= MAX_COMMENTS_PER_VIDEO:
+            raise ValueError(f"max_comments must be between 0 and {MAX_COMMENTS_PER_VIDEO}")
         if self.comment_order not in {"relevance", "time"}:
             raise ValueError("comment_order must be relevance or time")
 
@@ -146,14 +146,21 @@ class YouTubeDataCollector:
                         limit=self.config.max_comments,
                         order=self.config.comment_order,
                     )
-                    for comment in extract_comments(
-                        self.client,
-                        video.video_id,
-                        max_comments=self.config.max_comments,
-                        order=self.config.comment_order,
-                    ):
-                        if store.save_comment(comment):
-                            result.comments.append(comment)
+                    pending: list[Comment] = []
+                    try:
+                        for comment in extract_comments(
+                            self.client,
+                            video.video_id,
+                            max_comments=self.config.max_comments,
+                            order=self.config.comment_order,
+                        ):
+                            pending.append(comment)
+                            if len(pending) >= 100:
+                                result.comments.extend(store.save_comments(pending))
+                                pending.clear()
+                    finally:
+                        if pending:
+                            result.comments.extend(store.save_comments(pending))
                     store.mark_comments(
                         video.video_id,
                         completed=True,

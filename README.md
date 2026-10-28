@@ -25,6 +25,10 @@ With uv installed:
 uv sync --locked
 uv run --locked python scripts/youtube/discover_videos.py
 uv run --locked python scripts/youtube/collect_comments.py
+uv run --locked python scripts/youtube/collect_random_sample.py collect --target 50000 --seed 20261025
+uv run --locked python scripts/youtube/collect_random_sample.py status
+uv run --locked python scripts/youtube/prepare_screening.py --database data/youtube/work_sample_v3/sample.sqlite3 --per-period 25000 --output data/youtube/screening/work_v3_50k_stage1_v1
+uv run --locked python scripts/youtube/run_screening.py prepare --input-dir data/youtube/screening/work_v3_50k_stage1_v1 --run-dir data/youtube/screening/work_v3_50k_stage1_v1/luna_pilot --limit-batches 1
 uv run --locked python scripts/classify_comments.py --limit 50
 uv run --locked python scripts/run_web.py
 ```
@@ -68,9 +72,17 @@ RepOD data.
 
 ## Documentation
 
+- [Komentarze YouTube: przewodnik](docs/youtube/przewodnik-komentarze.md): cel H1,
+  pobieranie, pliki, paczki dla małego modelu i dalsza analiza.
 - [Operations](docs/operations.md): Makefile, Docker, GPU, CSV fields and resuming.
 - [YouTube collector](docs/youtube/youtube-collector.md): collection behavior and privacy.
 - [Sampling methodology](docs/youtube/comment-sampling.md): research limitations.
+- [Seeded English sample](docs/youtube/random-sample.md): resumable work-topic searches,
+  ChatGPT launch cutoff, language and engagement filters, Label Studio export.
+- [H1 screening batches](docs/youtube/h1-screening.md): bounded comment JSONL for a small model.
+- [Mocniejsza anotacja YouTube](docs/youtube/strong-review.md): próba 8 tys. komentarzy, pliki z promptami i import odpowiedzi do SQLite.
+- [JSON-y do drugiego pasa](datasets/youtube/strong_review_8k_v3/manifest.json): 200 batchy po 40 komentarzy i wspólna instrukcja dla modelu.
+- [Zadanie dla agenta anotującego](datasets/youtube/strong_review_8k_v3/ANNOTATE_NEXT.md): agent sam czyta kolejny JSON i zapisuje zweryfikowaną odpowiedź.
 - [YouTube labeling and validation](docs/youtube/comment-labeling-guide.md): codebook,
   blind pilot/evaluation sheets, human gold standard and model quality reports.
 - [YouTube pilot results](docs/youtube/validation-results.md): completed 50-comment

@@ -1,0 +1,70 @@
+<View>
+  <Header value="YouTube comment coding" />
+  <Header value="Search query that found the video" />
+  <Text name="query_context" value="$search_query" />
+  <Header value="Video title" />
+  <Text name="title_context" value="$video_title" />
+  <Header value="Comment" />
+  <Text name="comment" value="$text" />
+
+  <Header value="1. AI or machine learning mentioned or clearly implied?" />
+  <Choices name="ai_related" toName="comment" choice="single" required="true">
+    <Choice value="Yes" /><Choice value="No" /><Choice value="Unclear" />
+  </Choices>
+
+  <Header value="2. Does this comment discuss work or the labor market?" />
+  <Choices name="work_related" toName="comment" choice="single" required="true">
+    <Choice value="Yes" /><Choice value="No" /><Choice value="Unclear" />
+  </Choices>
+
+  <View visibleWhen="choice-selected" whenTagName="ai_related" whenChoiceValue="Yes">
+    <Header value="3. Attitude toward AI in general" />
+    <Choices name="ai_attitude" toName="comment" choice="single" required="true">
+      <Choice value="Positive" /><Choice value="Negative" /><Choice value="Neutral" />
+      <Choice value="Mixed" /><Choice value="Not expressed" /><Choice value="Unclear" />
+    </Choices>
+
+    <View visibleWhen="choice-selected" whenTagName="work_related" whenChoiceValue="Yes">
+      <Header value="4. Attitude toward AI's effect on work" />
+      <Choices name="work_attitude" toName="comment" choice="single" required="true">
+        <Choice value="Positive" /><Choice value="Negative" /><Choice value="Neutral" />
+        <Choice value="Mixed" /><Choice value="Not expressed" /><Choice value="Unclear" />
+      </Choices>
+    </View>
+  </View>
+
+  <View visibleWhen="choice-selected" whenTagName="work_related" whenChoiceValue="Yes">
+  <Header value="5. Does it claim that labor-market skill requirements increased?" />
+  <Choices name="skills_increased" toName="comment" choice="single" required="true">
+    <Choice value="Yes" /><Choice value="Denies" /><Choice value="Not discussed" />
+    <Choice value="Unclear" />
+  </Choices>
+
+  <Header value="6. Topics: select all that apply" />
+  <Choices name="topics" toName="comment" choice="multiple" required="true">
+    <Choice value="Layoffs" /><Choice value="Wages" /><Choice value="Recruitment" />
+    <Choice value="Skills" /><Choice value="Productivity" /><Choice value="Education" />
+    <Choice value="Other" />
+  </Choices>
+
+  <Header value="7. Emotions: select all expressed emotions, or None" />
+  <Choices name="emotions" toName="comment" choice="multiple" required="true">
+    <Choice value="Fear" /><Choice value="Anger" /><Choice value="Enthusiasm" />
+    <Choice value="Hope" /><Choice value="Concern" /><Choice value="No clear emotion" />
+  </Choices>
+
+  <Header value="8. Claimed cause of layoffs" />
+  <Choices name="layoff_cause" toName="comment" choice="single" required="true">
+    <Choice value="AI" /><Choice value="Economy" /><Choice value="Earlier overhiring" />
+    <Choice value="Multiple causes" /><Choice value="Unspecified" />
+    <Choice value="Not applicable" />
+  </Choices>
+
+  <Header value="9. Work sector named in this comment (choose the main one)" />
+  <Choices name="sector" toName="comment" choice="single" required="true">
+    <Choice value="it" /><Choice value="creative" /><Choice value="office" />
+    <Choice value="service" /><Choice value="education" /><Choice value="other" />
+    <Choice value="unspecified" />
+  </Choices>
+  </View>
+</View>

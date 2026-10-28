@@ -174,14 +174,14 @@ class CommentTests(unittest.TestCase):
             self.assertNotIn("author", call.args[1]["fields"].lower())
             self.assertNotIn("id", call.args[1]["fields"].lower())
 
-    def test_maximum_of_500_is_enforced(self):
+    def test_maximum_of_5000_is_enforced(self):
         with self.assertRaises(ValueError):
-            list(extract_comments(Mock(), "video", max_comments=501))
+            list(extract_comments(Mock(), "video", max_comments=5001))
 
     def test_exactly_500_comments_uses_five_pages_and_stops(self):
         client = Mock(spec=YouTubeAPIClient)
         client.get.side_effect = [comment_page(100, str(index)) for index in range(5)]
-        result = list(extract_comments(client, "video"))
+        result = list(extract_comments(client, "video", max_comments=500))
         self.assertEqual(len(result), 500)
         self.assertEqual(client.get.call_count, 5)
 
@@ -326,7 +326,7 @@ class ExportAndCollectorTests(unittest.TestCase):
             self.assertFalse(result.comments)
 
     def test_invalid_limits_are_rejected_before_network_access(self):
-        for kwargs in ({"max_comments": 501}, {"max_videos": 0}, {"candidates_per_query": 0}):
+        for kwargs in ({"max_comments": 5001}, {"max_videos": 0}, {"candidates_per_query": 0}):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 CollectorConfig(**kwargs)
 

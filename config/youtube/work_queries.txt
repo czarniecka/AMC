@@ -1,0 +1,20 @@
+# Versioned work and labor-market search phrases; deliberately no AI terms.
+# Chosen by probing YouTube search (October 2026): on-topic videos with at least 50 comments
+# and a measurable share of comments about AI after ChatGPT. Phrases about workplace themes
+# ("workplace automation", "future of work", "job security") returned webinars and unrelated
+# videos with almost no comments and were dropped.
+
+# Future of jobs and automation (pre-ChatGPT baseline exists)
+will robots take our jobs
+jobs that will disappear
+automation unemployment
+
+# Jobs exposed to AI
+is computer science still worth it
+junior developer jobs
+software engineer jobs
+data analyst jobs
+
+# General job search (low AI share, background)
+entry level jobs
+how to get a job

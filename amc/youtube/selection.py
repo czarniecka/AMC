@@ -4,6 +4,8 @@ import json
 import re
 from pathlib import Path
 
+from amc.youtube.comment_extractor import MAX_COMMENTS_PER_VIDEO
+
 
 def load_selection(path: Path) -> tuple[tuple[str, ...], int]:
     """Validate IDs and pilot limits before any collection request is made."""
@@ -14,7 +16,7 @@ def load_selection(path: Path) -> tuple[tuple[str, ...], int]:
     if not isinstance(payload, dict):
         raise ValueError("Video selection must be a JSON object.")
     ids = payload.get("video_ids")
-    limit = payload.get("max_comments", 100)
+    limit = payload.get("max_comments", 1000)
     if (
         not isinstance(ids, list)
         or not 1 <= len(ids) <= 500
@@ -25,6 +27,6 @@ def load_selection(path: Path) -> tuple[tuple[str, ...], int]:
         or len(set(ids)) != len(ids)
     ):
         raise ValueError("Provide 1–500 unique valid video IDs.")
-    if type(limit) is not int or not 0 <= limit <= 500:
-        raise ValueError("max_comments must be an integer between 0 and 500.")
+    if type(limit) is not int or not 0 <= limit <= MAX_COMMENTS_PER_VIDEO:
+        raise ValueError(f"max_comments must be an integer between 0 and {MAX_COMMENTS_PER_VIDEO}.")
     return tuple(ids), limit

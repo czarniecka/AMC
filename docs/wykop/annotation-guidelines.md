@@ -10,7 +10,7 @@ To pierwsza, wstępna analiza: służy do przesiania tekstów niezwiązanych z A
 - Hashtagi (#ai, #programista15k), linki i same tagi nie są dowodem. Wyjątek: hashtag użyty jako słowo w zdaniu (np. podmiot) czytasz jak zwykłe słowo, patrz `ai`.
 - Obrazy, filmy i linki: model ich nie widzi, więc Ty też nie. Oceniasz tylko słowa autora, a załącznik pomijasz. Wpis z samym linkiem lub obrazem, bez słów o AI i pracy, to `ai` no, `work` no.
 - Model widzi tylko treść tekstu, więc Ty też oceniasz wyłącznie ją, bez zaglądania do wpisu nadrzędnego, linku czy tytułu.
-- Wątpliwości: wybierz najbezpieczniejszą etykietę (`no`).
+- Wątpliwości rozstrzygaj najbezpieczniej: `no`.
 - `ai` i `work` oceniasz niezależnie: tekst może być o AI bez pracy, o pracy bez AI, o obu albo o żadnym.
 
 ## `ai`: yes / no

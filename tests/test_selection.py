@@ -12,7 +12,7 @@ class SelectionTests(unittest.TestCase):
     def test_default_selection_contains_twenty_unique_videos(self):
         ids, limit = load_selection(Path("config/youtube/approved_videos.json"))
         self.assertEqual(len(ids), 20)
-        self.assertEqual(limit, 100)
+        self.assertEqual(limit, 1000)
 
     def test_duplicate_ids_and_invalid_limits_are_rejected(self):
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:

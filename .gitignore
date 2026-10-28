@@ -13,6 +13,14 @@ build/
 dist/
 *.egg-info/
 data/*
+# Commit Label Studio task exports from the work-topic sample, but not its raw SQLite dump.
+!data/youtube/
+data/youtube/*
+!data/youtube/work_sample_v2/
+data/youtube/work_sample_v2/*
+!data/youtube/work_sample_v2/label_studio_*/
+data/youtube/work_sample_v2/label_studio_*/*
+!data/youtube/work_sample_v2/label_studio_*/tasks_*.json
 !data/jobs/
 data/jobs/*
 # Versioned research artifacts: gold standard and validation/analysis results.
