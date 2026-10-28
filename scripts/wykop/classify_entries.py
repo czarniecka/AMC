@@ -1,4 +1,4 @@
-"""Classify Wykop entries and comments like YouTube comments, using a CLARIN-PL model."""
+"""Classify Wykop entries and comments with the stage 1 labels (ai, work), using local Ollama."""
 
 import argparse
 import os
@@ -6,45 +6,46 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+import requests  # noqa: E402
 from dotenv import load_dotenv  # noqa: E402
 
-from amc.classification.clarin import ClarinClient, ClarinError  # noqa: E402
-from amc.jobs.client import DEFAULT_USER_AGENT  # noqa: E402
+from amc.classification.job_concern import OllamaClient  # noqa: E402
 from amc.wykop.classification import run  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def main(argv: list[str] | None = None) -> int:
+    load_dotenv(ROOT / ".env", override=False)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=ROOT / "data/wykop/wykop_entries.csv")
-    parser.add_argument("--output", type=Path, default=ROOT / "data/wykop/wykop_classified.csv")
-    parser.add_argument("--model", help="CLARIN-PL model (default: CLARIN_MODEL)")
-    parser.add_argument("--workers", type=int, default=8, help="parallel requests")
+    parser.add_argument("--output", type=Path, default=ROOT / "data/wykop/wykop_stage1.csv")
+    parser.add_argument("--model", default=os.getenv("OLLAMA_MODEL", "qwen3:8b"))
+    parser.add_argument(
+        "--workers", type=int, default=2, help="parallel requests (match OLLAMA_NUM_PARALLEL)"
+    )
     parser.add_argument("--limit", type=int, help="classify at most this many texts")
-    parser.add_argument("--list-models", action="store_true", help="print available models")
     options = parser.parse_args(argv)
-    load_dotenv(ROOT / ".env", override=False)
     try:
-        client = ClarinClient(
-            os.getenv("CLARIN_TOKEN", ""),
-            user_agent=os.getenv("AMC_USER_AGENT", DEFAULT_USER_AGENT),
-        )
-        if options.list_models:
-            print("\n".join(client.models()))
-            return 0
-        model = options.model or os.getenv("CLARIN_MODEL", "")
-        if not model:
-            parser.error("set CLARIN_MODEL in .env or pass --model")
         run(
-            client,
+            OllamaClient(),
             options.input,
             options.output,
-            model,
+            options.model,
             workers=options.workers,
             limit=options.limit,
         )
-    except (ClarinError, ValueError) as error:
+    except requests.RequestException as error:
+        # Ollama's error body names the cause (missing model, memory); it holds no post text.
+        detail = error.response.text[:300] if error.response is not None else ""
+        print(
+            f"Ollama request failed: {type(error).__name__}: {error} {detail}\n"
+            f"Check that Ollama runs at {os.getenv('OLLAMA_BASE_URL')} and that the model "
+            "is installed. Saved predictions are retained; rerun to resume.",
+            file=sys.stderr,
+        )
+        return 1
+    except ValueError as error:
         print(str(error), file=sys.stderr)
         return 1
     except KeyboardInterrupt:

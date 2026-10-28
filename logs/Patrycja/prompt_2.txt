@@ -1,0 +1,3 @@
+1. Mam do przygotowania projekt na studia: AI a rynek pracy: Jak zmieniają się wymagania kompetencyjne w ogłoszeniach po 2023? Ekstrakcja kompetencji, taksonomia ESCO. Zrób deep research i sprawdź z jakich datasetów możemy skorzystać, żeby mieć dane przed 2023 i po 2023, zawierające informacje o ofertach pracy wraz z wymaganiami kompetencyjnymi. Sprawdź też legalność tych danych, zgodność z wymaganiami bezpieczeństwa.
+2. Sprawdź dostępność danych z platformy KPRM, wyszukaj czy można legalnie pobierać ogłoszenia o pracę w celach naukowych
+3. Wymyśl chwytliwy tytuł dla naszego projektu i prezentacji, który będzie przyciągał uwagę, będzie kontrowersyjny

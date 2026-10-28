@@ -9,11 +9,15 @@ youtube-labeling:
 youtube-validation:
 	uv run --locked python scripts/youtube/validate_comments.py evaluate $(ARGS)
 COMPOSE = docker compose $(if $(filter 1,$(GPU)),-f compose.yaml -f compose.gpu.yaml,)
-.PHONY: classify docker-classify
+.PHONY: classify docker-classify classify-wykop docker-classify-wykop
 classify:
 	uv run --locked python scripts/classify_comments.py $(ARGS)
 docker-classify:
 	$(COMPOSE) run --rm classifier scripts/classify_comments.py $(ARGS)
+classify-wykop:
+	uv run --locked python scripts/wykop/classify_entries.py $(ARGS)
+docker-classify-wykop:
+	$(COMPOSE) run --rm classifier scripts/wykop/classify_entries.py $(ARGS)
 setup:
 	uv sync --locked
 web:
