@@ -1,0 +1,3 @@
+1. Przygotuj skrypt w python, który pozwoli na wybranie losowo 150 wpisów z pliku wykop_labeled.csv, gdzie 50% będą stanowić wpisy z ai=yes oraz work=yes, a pozostała część będzie mieć przynajmniej jedną z tych wartości na no. 
+2. W jaki sposób sprawdzić zgodność anotatorów między sobą oraz ich zgodność z modelem? Jakie miary można do tego wykrozystać? 
+3. Przejrzyj kilka przykładowych wpisów z pliku wykop.csv. Zaproponuj jakie wytyczne przygotować dla anotatorów oraz modelu, który będzie oceniał, czy dany wpis jest powiązany z tematem ai oraz pracy. Wychwyć jakieś realne przykłady do podania w wytycznych. 
